@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { useTickets } from './hooks/useTickets';
 import { useAgents } from './hooks/useAgents';
@@ -61,9 +61,8 @@ function AdminShell() {
 
       {/* Main content */}
       <div
-        className={`relative z-10 transition-all duration-300 ${
-          sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64'
-        }`}
+        className={`relative z-10 transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-64'
+          }`}
       >
         {/* Top bar */}
         <header className="sticky top-0 z-20 bg-dark-950/80 backdrop-blur-xl border-b border-dark-700/20">
@@ -174,8 +173,9 @@ export default function App() {
           {/* Public — anyone can access without login */}
           <Route path="/submit" element={<PublicSubmitPage />} />
           <Route path="/track" element={<PublicTrackPage />} />
+          <Route path="/" element={<Navigate to="/submit" replace />} />
           {/* Everything else — admin login required */}
-          <Route path="/*" element={<AdminShell />} />
+          <Route path="/admin/*" element={<AdminShell />} />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

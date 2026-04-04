@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 
 const navItems = [
   {
-    to: '/',
+    to: '/admin',
     label: 'Dashboard',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -11,7 +11,7 @@ const navItems = [
     ),
   },
   {
-    to: '/analytics',
+    to: '/admin/analytics',
     label: 'Analytics',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
@@ -20,7 +20,7 @@ const navItems = [
     ),
   },
   {
-    to: '/agents',
+    to: '/admin/agents',
     label: 'Agents',
     icon: (
       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
