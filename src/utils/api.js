@@ -1,5 +1,4 @@
-const BASE_URL =
-  'https://script.google.com/macros/s/AKfycbyzYM1NDToAFsPwUtfoRWNUTHG_qnkPGnmDLSzm5ieakEQ6d3FOQgitP13H-VRkZBUB/exec';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 /**
  * Generic fetch wrapper with error handling + timeout

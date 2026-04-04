@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createTicket } from '../utils/api';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 
@@ -18,12 +19,35 @@ export default function SubmitPage() {
   const [ticketId, setTicketId] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [captchaVal, setCaptchaVal] = useState(null);
+  const [cooldownTime, setCooldownTime] = useState(0);
+
+  useEffect(() => {
+    const lastSubmit = localStorage.getItem('skillected_last_ticket_time');
+    if (lastSubmit) {
+      const diff = Date.now() - parseInt(lastSubmit, 10);
+      const minutesRemaining = Math.max(0, 5 - Math.floor(diff / 60000)); // 5 minute cooldown
+      if (minutesRemaining > 0) {
+        setCooldownTime(minutesRemaining);
+      }
+    }
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (cooldownTime > 0) {
+      setError(`Spam protection: Please wait ${cooldownTime} more minute(s) before submitting again.`);
+      return;
+    }
+    if (!captchaVal) {
+      setError('Please complete the reCAPTCHA verification.');
+      return;
+    }
+
     if (!form.name.trim() || !form.subject.trim()) return;
     setLoading(true);
-    setError('');
 
     try {
       const payload = { ...form, status: 'Open' };
@@ -32,6 +56,8 @@ export default function SubmitPage() {
       }
       const result = await createTicket(payload);
       setTicketId(result?.id || result?.ticketId || `TK-${Date.now().toString(36).toUpperCase()}`);
+      localStorage.setItem('skillected_last_ticket_time', Date.now().toString());
+      setCooldownTime(5); // Start the 5 minute cooldown
       setSubmitted(true);
     } catch (err) {
       setError(err.message || 'Failed to submit ticket. Please try again.');
@@ -196,9 +222,17 @@ export default function SubmitPage() {
           <p className="text-red-400 text-xs text-center bg-red-500/10 px-3 py-2 rounded-lg">{error}</p>
         )}
 
+        <div className="flex justify-center py-2 animate-fade-in" style={{ animationDelay: '100ms' }}>
+          <ReCAPTCHA
+            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "YOUR_SITE_KEY_HERE"}
+            onChange={(val) => setCaptchaVal(val)}
+            theme="dark"
+          />
+        </div>
+
         <button
           type="submit"
-          disabled={!form.name.trim() || !form.subject.trim() || loading}
+          disabled={!form.name.trim() || !form.subject.trim() || loading || cooldownTime > 0}
           className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           {loading ? (
@@ -208,7 +242,7 @@ export default function SubmitPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
             </svg>
           )}
-          {loading ? 'Submitting…' : 'Submit Ticket'}
+          {cooldownTime > 0 ? `Submissions Paused (${cooldownTime}m)` : loading ? 'Submitting…' : 'Submit Ticket'}
         </button>
       </form>
 
