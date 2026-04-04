@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createTicket } from '../utils/api';
 import ReCAPTCHA from 'react-google-recaptcha';
+import Logo from '../components/Logo';
 
 const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 
@@ -126,11 +127,7 @@ export default function SubmitPage() {
     <div className="max-w-lg mx-auto animate-fade-in">
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-blue to-accent-violet flex items-center justify-center mx-auto mb-4 shadow-lg shadow-accent-blue/25">
-          <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-          </svg>
-        </div>
+        <Logo className="w-14 h-14 mx-auto mb-4" glow />
         <h1 className="text-white text-2xl font-bold tracking-tight">Submit a Ticket</h1>
         <p className="text-dark-500 text-sm mt-1">Need help? Fill out the form below and our team will assist you.</p>
       </div>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { getTicketById } from '../utils/api';
 import { Link } from 'react-router-dom';
+import Logo from '../components/Logo';
 
 export default function TrackTicket() {
   const [form, setForm] = useState({ ticketId: '', email: '' });
@@ -44,11 +45,7 @@ export default function TrackTicket() {
   return (
     <div className="max-w-xl mx-auto animate-fade-in">
       <div className="text-center mb-8">
-        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-accent-indigo to-purple-600 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/25">
-          <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </div>
+        <Logo className="w-14 h-14 mx-auto mb-4" glow />
         <h1 className="text-white text-2xl font-bold tracking-tight">Track Your Ticket</h1>
         <p className="text-dark-500 text-sm mt-1">Check the status of your previously submitted requests.</p>
       </div>

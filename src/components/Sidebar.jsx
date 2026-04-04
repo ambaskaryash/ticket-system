@@ -1,4 +1,5 @@
 import { NavLink, useLocation } from 'react-router-dom';
+import Logo from './Logo';
 
 const navItems = [
   {
@@ -57,11 +58,7 @@ export default function Sidebar({ collapsed, onToggle }) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 p-5 border-b border-dark-700/30">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-accent-blue to-accent-violet flex items-center justify-center shadow-lg shadow-accent-blue/20 shrink-0">
-            <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-            </svg>
-          </div>
+          <Logo className="w-9 h-9" glow />
           {!collapsed && (
             <div className="overflow-hidden">
               <h1 className="text-white text-sm font-bold tracking-tight whitespace-nowrap">Skillected Support</h1>
