@@ -103,43 +103,37 @@ function AnimatedCounter({ value }) {
 
 /* ─── StatsCard Component ─── */
 export default function StatsCard({ label, value, icon, color, delay = 0 }) {
-  const gradients = {
-    blue: 'from-blue-500/20 to-blue-600/5',
-    yellow: 'from-amber-500/20 to-amber-600/5',
-    green: 'from-emerald-500/20 to-emerald-600/5',
-    indigo: 'from-indigo-500/20 to-indigo-600/5',
+  const cardThemes = {
+    blue: 'border-l-blue-500 shadow-[0_0_25px_rgba(59,130,246,0.08)] group-hover:shadow-[0_8px_40px_rgba(59,130,246,0.2)] group-hover:border-l-blue-400',
+    yellow: 'border-l-amber-500 shadow-[0_0_25px_rgba(245,158,11,0.08)] group-hover:shadow-[0_8px_40px_rgba(245,158,11,0.2)] group-hover:border-l-amber-400',
+    green: 'border-l-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.08)] group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.2)] group-hover:border-l-emerald-400',
+    indigo: 'border-l-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.08)] group-hover:shadow-[0_8px_40px_rgba(99,102,241,0.2)] group-hover:border-l-indigo-400',
   };
 
   const iconColors = {
-    blue: 'text-blue-400',
-    yellow: 'text-amber-400',
-    green: 'text-emerald-400',
-    indigo: 'text-indigo-400',
-  };
-
-  const borderColors = {
-    blue: 'border-blue-500/20',
-    yellow: 'border-amber-500/20',
-    green: 'border-emerald-500/20',
-    indigo: 'border-indigo-500/20',
+    blue: 'text-blue-400 group-hover:text-blue-300 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]',
+    yellow: 'text-amber-400 group-hover:text-amber-300 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]',
+    green: 'text-emerald-400 group-hover:text-emerald-300 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]',
+    indigo: 'text-indigo-400 group-hover:text-indigo-300 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]',
   };
 
   return (
     <div
-      className={`glass-card p-5 md:p-6 bg-gradient-to-br ${gradients[color] || gradients.blue} border ${borderColors[color] || ''} animate-slide-up`}
+      className={`group relative overflow-hidden bg-dark-900/60 backdrop-blur-xl rounded-2xl border border-dark-700/40 border-l-[4px] ${cardThemes[color] || cardThemes.blue} p-5 md:p-6 transition-all duration-400 transform hover:-translate-y-1.5 cursor-pointer animate-slide-up`}
       style={{ animationDelay: `${delay}ms` }}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-dark-400 text-sm font-medium tracking-wide uppercase">
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      <div className="flex items-center justify-between mb-4 relative z-10">
+        <span className="text-dark-400 group-hover:text-dark-300 text-xs font-bold tracking-widest uppercase transition-colors">
           {label}
         </span>
         <span
-          className={`text-2xl ${iconColors[color] || 'text-blue-400'} opacity-80`}
+          className={`text-2xl transition-all duration-300 transform group-hover:scale-110 ${iconColors[color] || 'text-blue-400'}`}
         >
           {icon}
         </span>
       </div>
-      <div className="text-3xl md:text-4xl font-bold text-white tracking-tight">
+      <div className="text-3xl md:text-5xl font-black text-white tracking-tight relative z-10 drop-shadow-md">
         <AnimatedCounter value={value} />
       </div>
     </div>

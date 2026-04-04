@@ -1,12 +1,8 @@
 const BASE_URL =
-  'https://script.google.com/macros/s/AKfycbz6Sby8lq9o30bqRIyOm8eYMwhjCbATbeqGweZYGBaaRZj48-HIUa1uw5dDa48zeGeb/exec';
+  'https://script.google.com/macros/s/AKfycby_1H1Xpqt1NFU6bHqMLtgcoiinQHmG1VGbKFJ3b1zTfYAxOysvuaGh-Olenb81Okrv/exec';
 
 /**
  * Generic fetch wrapper with error handling + timeout
- * Google Apps Script deployments redirect (302) and require
- * `redirect: 'follow'` (the default). CORS should work if the
- * GAS app returns proper headers — but if the endpoint isn't configured
- * for CORS we gracefully handle errors.
  */
 async function request(url, options = {}) {
   const controller = new AbortController();
@@ -25,11 +21,9 @@ async function request(url, options = {}) {
 
     const text = await res.text();
 
-    // GAS sometimes returns JSONP or wrapped response
     try {
       return JSON.parse(text);
     } catch {
-      // Try to extract JSON from potential wrapper
       const match = text.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
       if (match) return JSON.parse(match[0]);
       throw new Error('Invalid JSON response from server');
@@ -44,32 +38,87 @@ async function request(url, options = {}) {
   }
 }
 
-/**
- * GET all tickets
- */
-export async function getTickets() {
-  const data = await request(`${BASE_URL}?action=getTickets`);
-  return data;
-}
-
-/**
- * GET single ticket by ID
- */
-export async function getTicketById(id) {
-  const data = await request(`${BASE_URL}?action=getTicketById&id=${encodeURIComponent(id)}`);
-  return data;
-}
-
-/**
- * POST update a ticket
- * GAS web apps usually need Content-Type: text/plain for POST to avoid
- * preflight CORS requests. The payload goes in the body as JSON string.
- */
-export async function updateTicket(payload) {
-  const data = await request(BASE_URL, {
+/* ─── POST helper (text/plain to avoid CORS preflight) ─── */
+function post(payload) {
+  return request(BASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify({ action: 'updateTicket', ...payload }),
+    body: JSON.stringify(payload),
   });
-  return data;
+}
+
+/* ══════════════════════════════════════════════
+   TICKET ENDPOINTS
+   ══════════════════════════════════════════════ */
+
+export async function getTickets() {
+  return request(`${BASE_URL}?action=getTickets`);
+}
+
+export async function getTicketById(id) {
+  return request(`${BASE_URL}?action=getTicketById&id=${encodeURIComponent(id)}`);
+}
+
+export async function createTicket(payload) {
+  return post({ action: 'createTicket', ...payload });
+}
+
+export async function updateTicket(payload) {
+  return post({ action: 'updateTicket', ...payload });
+}
+
+export async function deleteTicket(id) {
+  return post({ action: 'deleteTicket', id });
+}
+
+export async function archiveTicket(id) {
+  return post({ action: 'archiveTicket', id });
+}
+
+export async function bulkUpdateTickets(ids, updates) {
+  return post({ action: 'bulkUpdate', ids, updates });
+}
+
+/* ══════════════════════════════════════════════
+   NOTES ENDPOINTS
+   ══════════════════════════════════════════════ */
+
+export async function getNotes(ticketId) {
+  return request(`${BASE_URL}?action=getNotes&ticketId=${encodeURIComponent(ticketId)}`);
+}
+
+export async function addNote(ticketId, note) {
+  return post({ action: 'addNote', ticketId, ...note });
+}
+
+/* ══════════════════════════════════════════════
+   AGENT ENDPOINTS
+   ══════════════════════════════════════════════ */
+
+export async function getAgents() {
+  return request(`${BASE_URL}?action=getAgents`);
+}
+
+export async function addAgent(agent) {
+  return post({ action: 'addAgent', ...agent });
+}
+
+export async function updateAgent(agent) {
+  return post({ action: 'updateAgent', ...agent });
+}
+
+export async function deleteAgent(email) {
+  return post({ action: 'deleteAgent', email });
+}
+
+/* ══════════════════════════════════════════════
+   AUTH ENDPOINTS
+   ══════════════════════════════════════════════ */
+
+export async function login(credentials) {
+  return post({ action: 'login', ...credentials });
+}
+
+export async function getUsers() {
+  return request(`${BASE_URL}?action=getUsers`);
 }
