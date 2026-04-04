@@ -51,6 +51,17 @@ export function useTickets() {
               ? data.data
               : [];
 
+        // Differential cross-check: Detect specifically *new* incoming tickets during polling
+        if (silent && tickets.length > 0) {
+          // get IDs we already have locally
+          const existingIds = new Set(tickets.map(t => t.id || t.ID));
+          const newIncoming = ticketList.filter(t => !existingIds.has(t.id || t.ID));
+          
+          if (newIncoming.length > 0) {
+            addToast(`🔔 ${newIncoming.length} new ticket(s) received from server!`, 'success');
+          }
+        }
+
         setTickets(ticketList);
       } catch (err) {
         setError(err.message);
@@ -66,11 +77,11 @@ export function useTickets() {
     fetchTickets();
   }, [fetchTickets]);
 
-  /* ── Auto-polling (every 45s) ── */
+  /* ── 10-Second Smart-Polling (Real-Time Simulation) ── */
   useEffect(() => {
     pollRef.current = setInterval(() => {
       fetchTickets(true);
-    }, 45000);
+    }, 10000);
     return () => clearInterval(pollRef.current);
   }, [fetchTickets]);
 

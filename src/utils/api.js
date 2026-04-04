@@ -1,5 +1,5 @@
 const BASE_URL =
-  'https://script.google.com/macros/s/AKfycby_1H1Xpqt1NFU6bHqMLtgcoiinQHmG1VGbKFJ3b1zTfYAxOysvuaGh-Olenb81Okrv/exec';
+  'https://script.google.com/macros/s/AKfycbyzYM1NDToAFsPwUtfoRWNUTHG_qnkPGnmDLSzm5ieakEQ6d3FOQgitP13H-VRkZBUB/exec';
 
 /**
  * Generic fetch wrapper with error handling + timeout

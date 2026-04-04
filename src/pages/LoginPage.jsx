@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { login as apiLogin } from '../utils/api';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -16,27 +17,23 @@ export default function LoginPage() {
     }
     setLoading(true);
 
-    // Simple local auth — in production this calls GAS backend
-    // Default credentials for first-time setup
-    const users = {
-      admin: { password: 'admin123', role: 'admin', name: 'Admin User' },
-      agent: { password: 'agent123', role: 'agent', name: 'Support Agent' },
-      viewer: { password: 'viewer123', role: 'viewer', name: 'Viewer' },
-    };
-
-    setTimeout(() => {
-      const user = users[form.username.toLowerCase()];
-      if (user && user.password === form.password) {
+    try {
+      const res = await apiLogin({ username: form.username.trim().toLowerCase(), password: form.password });
+      if (res.success) {
         login({
-          username: form.username.toLowerCase(),
-          name: user.name,
-          role: user.role,
+          username: res.username,
+          name: res.name,
+          role: res.role,
+          token: res.token,
         });
       } else {
-        setError('Invalid username or password');
+        setError(res.error || 'Invalid credentials');
       }
+    } catch (err) {
+      setError('Secure login service unreachable. Try again.');
+    } finally {
       setLoading(false);
-    }, 800);
+    }
   };
 
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
@@ -106,7 +103,7 @@ export default function LoginPage() {
 
           <div className="text-center">
             <p className="text-dark-600 text-[10px] mt-3">
-              Default: admin / admin123 · agent / agent123 · viewer / viewer123
+              Requires valid Google Sheet `Users` tab credentials.
             </p>
           </div>
         </form>

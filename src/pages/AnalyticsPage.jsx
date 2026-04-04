@@ -189,8 +189,8 @@ export default function AnalyticsPage({ tickets }) {
 
 function ChartPanel({ title, children }) {
   return (
-    <div className="glass-panel p-5">
-      <h3 className="text-white text-sm font-semibold mb-4">{title}</h3>
+    <div className="glass-panel p-6 border-t-2 border-t-dark-700/50 hover:border-t-accent-blue/50 transition-colors">
+      <h3 className="text-white text-sm font-semibold tracking-wide mb-6">{title}</h3>
       {children}
     </div>
   );
@@ -198,18 +198,19 @@ function ChartPanel({ title, children }) {
 
 function MetricCard({ label, value, icon, color }) {
   const colors = {
-    indigo: 'from-indigo-500/20 to-indigo-600/5 border-indigo-500/20',
-    blue: 'from-blue-500/20 to-blue-600/5 border-blue-500/20',
-    green: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/20',
-    emerald: 'from-emerald-500/20 to-emerald-600/5 border-emerald-500/20',
+    indigo: 'border-l-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.08)] group-hover:shadow-[0_8px_40px_rgba(99,102,241,0.2)]',
+    blue: 'border-l-blue-500 shadow-[0_0_25px_rgba(59,130,246,0.08)] group-hover:shadow-[0_8px_40px_rgba(59,130,246,0.2)]',
+    green: 'border-l-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.08)] group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.2)]',
+    emerald: 'border-l-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.08)] group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.2)]',
   };
   return (
-    <div className={`glass-card p-5 bg-gradient-to-br ${colors[color] || colors.indigo} border`}>
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-dark-400 text-xs font-medium uppercase tracking-wide">{label}</span>
-        <span className="text-xl opacity-80">{icon}</span>
+    <div className={`group relative overflow-hidden bg-dark-900/60 backdrop-blur-xl rounded-2xl border border-dark-700/40 border-l-[4px] p-5 cursor-default transition-all duration-400 transform hover:-translate-y-1 ${colors[color] || colors.indigo}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+      <div className="flex items-center justify-between mb-2 relative z-10">
+        <span className="text-dark-400 group-hover:text-dark-300 text-xs font-bold uppercase tracking-widest transition-colors">{label}</span>
+        <span className="text-xl transition-transform duration-300 group-hover:scale-110 drop-shadow-md">{icon}</span>
       </div>
-      <div className="text-2xl font-bold text-white tracking-tight">
+      <div className="text-3xl font-black text-white tracking-tight relative z-10 drop-shadow-md">
         {typeof value === 'number' ? <AnimatedCounter value={value} /> : value}
       </div>
     </div>
