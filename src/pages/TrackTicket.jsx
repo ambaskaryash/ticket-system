@@ -3,6 +3,10 @@ import { getTicketById } from '../utils/api';
 import { Link } from 'react-router-dom';
 import Logo from '../components/Logo';
 
+/**
+ * TrackTicket — public page for customers to check ticket status.
+ * getTicketById now returns a normalized ticket from the API layer.
+ */
 export default function TrackTicket() {
   const [form, setForm] = useState({ ticketId: '', email: '' });
   const [loading, setLoading] = useState(false);
@@ -12,14 +16,14 @@ export default function TrackTicket() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.ticketId.trim() || !form.email.trim()) return;
-    
+
     setLoading(true);
     setError('');
     setTicket(null);
-    
+
     try {
       const data = await getTicketById(form.ticketId.trim());
-      if (!data || data.error || !data.id) {
+      if (!data || !data.id) {
         throw new Error("Ticket not found.");
       }
       if (data.email.trim().toLowerCase() !== form.email.trim().toLowerCase()) {
@@ -95,7 +99,7 @@ export default function TrackTicket() {
               {ticket.status}
             </span>
           </div>
-          
+
           <div>
             <h3 className="text-dark-400 text-xs font-medium uppercase tracking-wider mb-2">Description</h3>
             <p className="text-dark-200 text-sm whitespace-pre-wrap bg-dark-800/30 p-3 rounded-lg border border-dark-600/30">{ticket.description || "No description provided."}</p>
@@ -104,9 +108,9 @@ export default function TrackTicket() {
           {ticket.attachment && (
             <div className="mt-4">
               <h3 className="text-dark-400 text-xs font-medium uppercase tracking-wider mb-2">File Attachment</h3>
-              <a 
-                href={ticket.attachment} 
-                target="_blank" 
+              <a
+                href={ticket.attachment}
+                target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 text-sm text-accent-indigo hover:text-white bg-accent-indigo/10 hover:bg-accent-indigo/20 px-4 py-2 rounded-lg transition-colors"
               >
@@ -122,13 +126,13 @@ export default function TrackTicket() {
               <span className="text-dark-200 font-medium">{ticket.priority}</span>
             </div>
             <div>
-              <span className="text-dark-500 block text-xs">Last Updated</span>
-              <span className="text-dark-200 font-medium">{new Date(ticket.updated).toLocaleDateString()}</span>
+              <span className="text-dark-500 block text-xs">Created</span>
+              <span className="text-dark-200 font-medium">{ticket.createdAt ? new Date(ticket.createdAt).toLocaleDateString() : '—'}</span>
             </div>
           </div>
 
-          <button 
-            onClick={() => setTicket(null)} 
+          <button
+            onClick={() => setTicket(null)}
             className="w-full py-2.5 rounded-lg border border-dark-600 text-dark-300 hover:text-white hover:bg-dark-700 transition-colors text-sm"
           >
             Search Another Ticket

@@ -13,6 +13,10 @@ const XIcon = () => (
 const STATUSES = ['Open', 'In Progress', 'Resolved'];
 const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 
+/**
+ * TicketModal — uses normalized ticket fields.
+ * Notes are also pre-normalized from the API layer.
+ */
 export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArchive, agentNames = [] }) {
   const [isEditing, setIsEditing] = useState(false);
   const [form, setForm] = useState({});
@@ -25,33 +29,29 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
   const [confirmAction, setConfirmAction] = useState(null);
   const overlayRef = useRef(null);
 
-  /* ── Populate form ── */
+  /* ── Populate form from normalized ticket ── */
   useEffect(() => {
     if (ticket) {
       setForm({
-        status: ticket.status || ticket.Status || 'Open',
-        agent: ticket.agent || ticket.Agent || ticket.assignedAgent || '',
-        name: ticket.name || ticket.Name || ticket.userName || '',
-        email: ticket.email || ticket.Email || '',
-        subject: ticket.subject || ticket.Subject || '',
-        description: ticket.description || ticket.Description || ticket.message || ticket.Message || '',
-        priority: ticket.priority || ticket.Priority || 'Medium',
+        status: ticket.status || 'Open',
+        agent: ticket.agent || '',
+        name: ticket.name || '',
+        email: ticket.email || '',
+        subject: ticket.subject || '',
+        description: ticket.description || '',
+        priority: ticket.priority || 'Medium',
       });
       setIsEditing(false);
       setActiveTab('details');
     }
   }, [ticket]);
 
-  /* ── Fetch notes ── */
+  /* ── Fetch notes (returned pre-normalized from API) ── */
   useEffect(() => {
     if (ticket && activeTab === 'notes') {
       setNotesLoading(true);
-      const ticketId = ticket.id || ticket.ID;
-      getNotes(ticketId)
-        .then((data) => {
-          const list = Array.isArray(data) ? data : Array.isArray(data?.notes) ? data.notes : [];
-          setNotes(list);
-        })
+      getNotes(ticket.id)
+        .then((list) => setNotes(list))
         .catch(() => setNotes([]))
         .finally(() => setNotesLoading(false));
     }
@@ -84,7 +84,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onUpdate(ticket.id || ticket.ID, {
+      await onUpdate(ticket.id, {
         ...form,
         Status: form.status,
         Agent: form.agent,
@@ -114,7 +114,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
     setNotes((prev) => [...prev, noteObj]);
     setNewNote('');
     try {
-      await addNote(ticket.id || ticket.ID, noteObj);
+      await addNote(ticket.id, noteObj);
     } catch {
       // keep the optimistic note
     }
@@ -128,7 +128,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
       confirmLabel: 'Delete',
       color: 'red',
       action: async () => {
-        await onDelete(ticket.id || ticket.ID);
+        await onDelete(ticket.id);
         setConfirmAction(null);
         handleClose();
       },
@@ -142,7 +142,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
       confirmLabel: 'Archive',
       color: 'amber',
       action: async () => {
-        await onArchive(ticket.id || ticket.ID);
+        await onArchive(ticket.id);
         setConfirmAction(null);
         handleClose();
       },
@@ -153,20 +153,18 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
 
   if (!ticket) return null;
 
-  const ticketId = ticket.id || ticket.ID || '';
-  const createdAt = ticket.createdAt || ticket.CreatedAt || ticket.timestamp || ticket.Timestamp || '';
   const sla = getSLAStatus(ticket);
   const sc = getStatusConfig(form.status);
   const pc = getPriorityConfig(form.priority);
 
   const hasChanged =
-    form.status !== (ticket.status || ticket.Status || 'Open') ||
-    form.agent !== (ticket.agent || ticket.Agent || ticket.assignedAgent || '') ||
-    form.priority !== (ticket.priority || ticket.Priority || 'Medium') ||
-    form.name !== (ticket.name || ticket.Name || ticket.userName || '') ||
-    form.email !== (ticket.email || ticket.Email || '') ||
-    form.subject !== (ticket.subject || ticket.Subject || '') ||
-    form.description !== (ticket.description || ticket.Description || ticket.message || ticket.Message || '');
+    form.status !== (ticket.status || 'Open') ||
+    form.agent !== (ticket.agent || '') ||
+    form.priority !== (ticket.priority || 'Medium') ||
+    form.name !== (ticket.name || '') ||
+    form.email !== (ticket.email || '') ||
+    form.subject !== (ticket.subject || '') ||
+    form.description !== (ticket.description || '');
 
   return (
     <>
@@ -192,7 +190,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
               </div>
               <div>
                 <span className="text-dark-400 text-xs font-medium">Ticket</span>
-                <p className="text-white text-sm font-semibold">#{ticketId}</p>
+                <p className="text-white text-sm font-semibold">#{ticket.id}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
@@ -304,7 +302,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                     <div className="grid grid-cols-2 gap-4">
                       <DetailField label="Reporter" value={form.name} />
                       <DetailField label="Email" value={form.email} />
-                      <DetailField label="Created" value={createdAt ? new Date(createdAt).toLocaleString() : '—'} />
+                      <DetailField label="Created" value={ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : '—'} />
                       <DetailField label="Assigned Agent" value={form.agent || 'Unassigned'} />
                     </div>
                     <div>
@@ -317,9 +315,9 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                     {ticket.attachment && (
                       <div>
                         <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">File Attachment</label>
-                        <a 
-                          href={ticket.attachment} 
-                          target="_blank" 
+                        <a
+                          href={ticket.attachment}
+                          target="_blank"
                           rel="noreferrer"
                           className="inline-flex items-center gap-2 text-sm text-accent-indigo hover:text-white bg-accent-indigo/10 hover:bg-accent-indigo/20 px-4 py-2 rounded-lg transition-colors"
                         >

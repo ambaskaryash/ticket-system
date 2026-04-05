@@ -1,6 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
-import { getAgents as apiGetAgents, addAgent as apiAddAgent, updateAgent as apiUpdateAgent, deleteAgent as apiDeleteAgent } from '../utils/api';
+import {
+  getAgents as apiGetAgents,
+  addAgent as apiAddAgent,
+  updateAgent as apiUpdateAgent,
+  deleteAgent as apiDeleteAgent,
+} from '../utils/api';
 
+/**
+ * Custom hook for agent CRUD with optimistic updates.
+ *
+ * NOTE: `getAgents()` now returns pre-normalized data from the API layer.
+ * All agents have consistent field names: name, email, role.
+ */
 export function useAgents() {
   const [agents, setAgents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -9,12 +20,11 @@ export function useAgents() {
   const fetchAgents = useCallback(async () => {
     try {
       setLoading(true);
-      const data = await apiGetAgents();
-      const list = Array.isArray(data) ? data : Array.isArray(data?.agents) ? data.agents : [];
+      const list = await apiGetAgents();
       setAgents(list);
       setError(null);
     } catch (err) {
-      setError(err.message || "Failed to fetch agents");
+      setError(err.message || 'Failed to fetch agents');
       setAgents([]);
     } finally {
       setLoading(false);
@@ -42,7 +52,9 @@ export function useAgents() {
   const updateAgent = useCallback(
     async (agentData) => {
       const prev = [...agents];
-      setAgents((list) => list.map((a) => (a.email === agentData.email ? { ...a, ...agentData } : a)));
+      setAgents((list) =>
+        list.map((a) => (a.email === agentData.email ? { ...a, ...agentData } : a))
+      );
       try {
         await apiUpdateAgent(agentData);
       } catch (err) {

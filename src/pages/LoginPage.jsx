@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { login as apiLogin } from '../utils/api';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Logo from '../components/Logo';
 
 export default function LoginPage() {
   const { login } = useAuth();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -27,10 +30,13 @@ export default function LoginPage() {
           role: res.role,
           token: res.token,
         });
+        // Redirect to the intended page or admin dashboard
+        const redirect = searchParams.get('redirect') || '/admin';
+        navigate(redirect, { replace: true });
       } else {
         setError(res.error || 'Invalid credentials');
       }
-    } catch (err) {
+    } catch {
       setError('Secure login service unreachable. Try again.');
     } finally {
       setLoading(false);

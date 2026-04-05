@@ -11,6 +11,10 @@ import {
 /**
  * Custom hook for ticket state management with optimistic updates,
  * auto-polling, CRUD operations, and bulk actions.
+ *
+ * NOTE: `getTickets()` now returns pre-normalized data from the API layer.
+ * All tickets have consistent field names: id, name, email, subject,
+ * description, status, priority, agent, createdAt, archived.
  */
 export function useTickets() {
   const [tickets, setTickets] = useState([]);
@@ -20,6 +24,7 @@ export function useTickets() {
   const [showArchived, setShowArchived] = useState(false);
   const toastIdRef = useRef(0);
   const pollRef = useRef(null);
+  const isFetchingRef = useRef(false);
 
   /* ── Toast helpers ── */
   const addToast = useCallback((message, type = 'info') => {
@@ -35,28 +40,24 @@ export function useTickets() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  /* ── Fetch tickets ── */
+  /* ── Fetch tickets (data arrives pre-normalized from API layer) ── */
   const fetchTickets = useCallback(
     async (silent = false) => {
+      // Polling deduplication: skip if a fetch is already in-flight
+      if (isFetchingRef.current && silent) return;
+
       try {
+        isFetchingRef.current = true;
         if (!silent) setLoading(true);
         setError(null);
-        const data = await getTickets();
 
-        const ticketList = Array.isArray(data)
-          ? data
-          : Array.isArray(data?.tickets)
-            ? data.tickets
-            : Array.isArray(data?.data)
-              ? data.data
-              : [];
+        const ticketList = await getTickets();
 
-        // Differential cross-check: Detect specifically *new* incoming tickets during polling
+        // Detect new incoming tickets during polling
         if (silent && tickets.length > 0) {
-          // get IDs we already have locally
-          const existingIds = new Set(tickets.map(t => t.id || t.ID));
-          const newIncoming = ticketList.filter(t => !existingIds.has(t.id || t.ID));
-          
+          const existingIds = new Set(tickets.map((t) => t.id));
+          const newIncoming = ticketList.filter((t) => !existingIds.has(t.id));
+
           if (newIncoming.length > 0) {
             addToast(`🔔 ${newIncoming.length} new ticket(s) received from server!`, 'success');
           }
@@ -67,15 +68,17 @@ export function useTickets() {
         setError(err.message);
         if (!silent) addToast(err.message, 'error');
       } finally {
+        isFetchingRef.current = false;
         if (!silent) setLoading(false);
       }
     },
-    [addToast]
+    [addToast, tickets]
   );
 
   useEffect(() => {
     fetchTickets();
-  }, [fetchTickets]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* ── 10-Second Smart-Polling (Real-Time Simulation) ── */
   useEffect(() => {
@@ -88,10 +91,7 @@ export function useTickets() {
   /* ── Filter active vs archived ── */
   const activeTickets = showArchived
     ? tickets
-    : tickets.filter((t) => {
-        const archived = t.archived || t.Archived;
-        return !archived || archived === 'false' || archived === false;
-      });
+    : tickets.filter((t) => !t.archived);
 
   /* ── Create ticket ── */
   const createTicket = useCallback(
@@ -106,7 +106,6 @@ export function useTickets() {
         setTickets((prev) => [newTicket, ...prev]);
         await apiCreateTicket(ticketData);
         addToast('Ticket created successfully', 'success');
-        // Refetch to get the real ID
         fetchTickets(true);
       } catch (err) {
         setTickets((prev) => prev.filter((t) => !String(t.id).startsWith('TEMP-')));
@@ -123,9 +122,7 @@ export function useTickets() {
       const previousTickets = [...tickets];
 
       setTickets((prev) =>
-        prev.map((t) =>
-          t.id === ticketId || t.ID === ticketId ? { ...t, ...updates } : t
-        )
+        prev.map((t) => (t.id === ticketId ? { ...t, ...updates } : t))
       );
 
       try {
@@ -144,7 +141,7 @@ export function useTickets() {
   const deleteTicket = useCallback(
     async (ticketId) => {
       const previousTickets = [...tickets];
-      setTickets((prev) => prev.filter((t) => (t.id || t.ID) !== ticketId));
+      setTickets((prev) => prev.filter((t) => t.id !== ticketId));
 
       try {
         await apiDeleteTicket(ticketId);
@@ -163,9 +160,7 @@ export function useTickets() {
     async (ticketId) => {
       const previousTickets = [...tickets];
       setTickets((prev) =>
-        prev.map((t) =>
-          (t.id || t.ID) === ticketId ? { ...t, archived: true, Archived: true } : t
-        )
+        prev.map((t) => (t.id === ticketId ? { ...t, archived: true } : t))
       );
 
       try {
@@ -185,9 +180,7 @@ export function useTickets() {
     async (ids, updates) => {
       const previousTickets = [...tickets];
       setTickets((prev) =>
-        prev.map((t) =>
-          ids.includes(t.id || t.ID) ? { ...t, ...updates } : t
-        )
+        prev.map((t) => (ids.includes(t.id) ? { ...t, ...updates } : t))
       );
 
       try {
@@ -202,18 +195,12 @@ export function useTickets() {
     [tickets, addToast]
   );
 
-  /* ── Computed stats ── */
+  /* ── Computed stats (using normalized field names) ── */
   const stats = {
     total: activeTickets.length,
-    open: activeTickets.filter(
-      (t) => (t.status || t.Status || '').toLowerCase() === 'open'
-    ).length,
-    inProgress: activeTickets.filter(
-      (t) => (t.status || t.Status || '').toLowerCase().replace(/[\s_-]/g, '') === 'inprogress'
-    ).length,
-    resolved: activeTickets.filter(
-      (t) => (t.status || t.Status || '').toLowerCase() === 'resolved'
-    ).length,
+    open: activeTickets.filter((t) => t.status === 'Open').length,
+    inProgress: activeTickets.filter((t) => t.status === 'In Progress').length,
+    resolved: activeTickets.filter((t) => t.status === 'Resolved').length,
   };
 
   return {

@@ -1,15 +1,51 @@
+import { normalizeTickets, normalizeTicket, normalizeAgents, normalizeNotes } from './normalize';
+
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+/* ══════════════════════════════════════════════
+   REQUEST INFRASTRUCTURE
+   ══════════════════════════════════════════════ */
+
 /**
- * Generic fetch wrapper with error handling + timeout
+ * In-flight GET requests — used for deduplication.
+ * Key = URL, Value = { promise, controller }
+ */
+const inflightRequests = new Map();
+
+/**
+ * Get auth token from localStorage (avoids circular dependency with useAuth).
+ */
+function getAuthToken() {
+  try {
+    const saved = localStorage.getItem('ticket_user');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      return parsed?.token || null;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
+}
+
+/**
+ * Generic fetch wrapper with error handling, timeout, and auth token injection.
  */
 async function request(url, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
 
+  // Inject auth token if available
+  const token = getAuthToken();
+  const headers = { ...options.headers };
+  if (token) {
+    headers['X-Auth-Token'] = token;
+  }
+
   try {
     const res = await fetch(url, {
       ...options,
+      headers,
       redirect: 'follow',
       signal: controller.signal,
     });
@@ -37,6 +73,49 @@ async function request(url, options = {}) {
   }
 }
 
+/**
+ * Deduplicated GET request — prevents overlapping GET calls to the same URL.
+ * If a request to the same URL is already in-flight, reuses that promise.
+ */
+async function deduplicatedGet(url) {
+  if (inflightRequests.has(url)) {
+    return inflightRequests.get(url).promise;
+  }
+
+  const promise = request(url).finally(() => {
+    inflightRequests.delete(url);
+  });
+
+  inflightRequests.set(url, { promise });
+  return promise;
+}
+
+/**
+ * Retry a function with exponential backoff.
+ * @param {Function} fn - Async function to retry
+ * @param {number} maxRetries - Maximum number of retries (default 2)
+ * @param {number} baseDelay - Base delay in ms (default 1000)
+ */
+async function retryWithBackoff(fn, maxRetries = 2, baseDelay = 1000) {
+  let lastError;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastError = err;
+      // Don't retry on client errors or abort
+      if (err.message?.includes('HTTP 4') || err.name === 'AbortError') {
+        throw err;
+      }
+      if (attempt < maxRetries) {
+        const delay = baseDelay * Math.pow(2, attempt) + Math.random() * 500;
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw lastError;
+}
+
 /* ─── POST helper (text/plain to avoid CORS preflight) ─── */
 function post(payload) {
   return request(BASE_URL, {
@@ -51,11 +130,17 @@ function post(payload) {
    ══════════════════════════════════════════════ */
 
 export async function getTickets() {
-  return request(`${BASE_URL}?action=getTickets`);
+  const data = await retryWithBackoff(() =>
+    deduplicatedGet(`${BASE_URL}?action=getTickets`)
+  );
+  return normalizeTickets(data);
 }
 
 export async function getTicketById(id) {
-  return request(`${BASE_URL}?action=getTicketById&id=${encodeURIComponent(id)}`);
+  const data = await retryWithBackoff(() =>
+    request(`${BASE_URL}?action=getTicketById&id=${encodeURIComponent(id)}`)
+  );
+  return normalizeTicket(data);
 }
 
 export async function createTicket(payload) {
@@ -83,7 +168,10 @@ export async function bulkUpdateTickets(ids, updates) {
    ══════════════════════════════════════════════ */
 
 export async function getNotes(ticketId) {
-  return request(`${BASE_URL}?action=getNotes&ticketId=${encodeURIComponent(ticketId)}`);
+  const data = await retryWithBackoff(() =>
+    request(`${BASE_URL}?action=getNotes&ticketId=${encodeURIComponent(ticketId)}`)
+  );
+  return normalizeNotes(data);
 }
 
 export async function addNote(ticketId, note) {
@@ -95,7 +183,10 @@ export async function addNote(ticketId, note) {
    ══════════════════════════════════════════════ */
 
 export async function getAgents() {
-  return request(`${BASE_URL}?action=getAgents`);
+  const data = await retryWithBackoff(() =>
+    deduplicatedGet(`${BASE_URL}?action=getAgents`)
+  );
+  return normalizeAgents(data);
 }
 
 export async function addAgent(agent) {
@@ -119,5 +210,5 @@ export async function login(credentials) {
 }
 
 export async function getUsers() {
-  return request(`${BASE_URL}?action=getUsers`);
+  return deduplicatedGet(`${BASE_URL}?action=getUsers`);
 }

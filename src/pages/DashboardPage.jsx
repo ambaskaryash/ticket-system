@@ -22,6 +22,10 @@ const RefreshIcon = ({ spinning }) => (
 const STATUS_FILTERS = ['All', 'Open', 'In Progress', 'Resolved'];
 const PRIORITY_FILTERS = ['All', 'Low', 'Medium', 'High', 'Critical'];
 
+/**
+ * DashboardPage — uses normalized ticket fields.
+ * Filtering uses direct field access (no fallbacks needed).
+ */
 export default function DashboardPage({
   tickets,
   loading,
@@ -48,26 +52,15 @@ export default function DashboardPage({
 
   const debouncedSearch = useDebouncedValue(search);
 
-  /* ── Filtering ── */
+  /* ── Filtering (using normalized fields) ── */
   const filtered = useMemo(() => {
     return tickets.filter((t) => {
-      const tStatus = (t.status || t.Status || '').toLowerCase();
-      const tPriority = (t.priority || t.Priority || '').toLowerCase();
-      const tName = (t.name || t.Name || t.userName || '').toLowerCase();
-      const tSubject = (t.subject || t.Subject || '').toLowerCase();
-
       if (debouncedSearch) {
         const q = debouncedSearch.toLowerCase();
-        if (!tName.includes(q) && !tSubject.includes(q)) return false;
+        if (!t.name.toLowerCase().includes(q) && !t.subject.toLowerCase().includes(q)) return false;
       }
-      if (statusFilter !== 'All') {
-        const normalized = tStatus.replace(/[\s_-]/g, '');
-        const filterNorm = statusFilter.toLowerCase().replace(/[\s_-]/g, '');
-        if (normalized !== filterNorm) return false;
-      }
-      if (priorityFilter !== 'All') {
-        if (tPriority !== priorityFilter.toLowerCase()) return false;
-      }
+      if (statusFilter !== 'All' && t.status !== statusFilter) return false;
+      if (priorityFilter !== 'All' && t.priority !== priorityFilter) return false;
       return true;
     });
   }, [tickets, debouncedSearch, statusFilter, priorityFilter]);
@@ -80,11 +73,10 @@ export default function DashboardPage({
 
   /* ── Bulk select ── */
   const toggleSelect = (ticket) => {
-    const id = ticket.id || ticket.ID;
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(ticket.id)) next.delete(ticket.id);
+      else next.add(ticket.id);
       return next;
     });
   };
@@ -261,11 +253,11 @@ export default function DashboardPage({
           ? Array.from({ length: 6 }).map((_, i) => <TicketCardSkeleton key={i} />)
           : filtered.map((ticket, i) => (
               <TicketCard
-                key={ticket.id || ticket.ID || i}
+                key={ticket.id || i}
                 ticket={ticket}
                 index={i}
                 onClick={setSelectedTicket}
-                selected={selectedIds.has(ticket.id || ticket.ID)}
+                selected={selectedIds.has(ticket.id)}
                 onSelect={toggleSelect}
               />
             ))}

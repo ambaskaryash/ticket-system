@@ -5,19 +5,23 @@ import 'jspdf-autotable';
    CSV EXPORT
    ══════════════════════════════════════════════ */
 
+/**
+ * Export tickets to CSV.
+ * Expects normalized ticket fields.
+ */
 export function exportToCSV(tickets, filename = 'tickets') {
   const headers = ['ID', 'Name', 'Email', 'Subject', 'Description', 'Status', 'Priority', 'Agent', 'Created At'];
 
   const rows = tickets.map((t) => [
-    t.id || t.ID || '',
-    t.name || t.Name || t.userName || '',
-    t.email || t.Email || '',
-    t.subject || t.Subject || '',
-    `"${(t.description || t.Description || t.message || t.Message || '').replace(/"/g, '""')}"`,
-    t.status || t.Status || '',
-    t.priority || t.Priority || '',
-    t.agent || t.Agent || t.assignedAgent || '',
-    t.createdAt || t.CreatedAt || t.timestamp || t.Timestamp || '',
+    t.id,
+    t.name,
+    t.email,
+    t.subject,
+    `"${(t.description || '').replace(/"/g, '""')}"`,
+    t.status,
+    t.priority,
+    t.agent || 'Unassigned',
+    t.createdAt,
   ]);
 
   const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
@@ -34,6 +38,10 @@ export function exportToCSV(tickets, filename = 'tickets') {
    PDF EXPORT
    ══════════════════════════════════════════════ */
 
+/**
+ * Export tickets to PDF.
+ * Expects normalized ticket fields.
+ */
 export function exportToPDF(tickets, filename = 'tickets') {
   const doc = new jsPDF({ orientation: 'landscape' });
 
@@ -51,13 +59,13 @@ export function exportToPDF(tickets, filename = 'tickets') {
   const headers = [['ID', 'Name', 'Subject', 'Status', 'Priority', 'Agent', 'Created']];
 
   const rows = tickets.map((t) => [
-    String(t.id || t.ID || ''),
-    t.name || t.Name || t.userName || '',
-    (t.subject || t.Subject || '').substring(0, 40),
-    t.status || t.Status || '',
-    t.priority || t.Priority || '',
-    t.agent || t.Agent || t.assignedAgent || 'Unassigned',
-    t.createdAt || t.CreatedAt || t.timestamp || t.Timestamp || '',
+    String(t.id),
+    t.name,
+    (t.subject || '').substring(0, 40),
+    t.status,
+    t.priority,
+    t.agent || 'Unassigned',
+    t.createdAt,
   ]);
 
   doc.autoTable({

@@ -27,6 +27,9 @@ const chartOptions = {
   },
 };
 
+/**
+ * AnalyticsPage — uses normalized ticket fields.
+ */
 export default function AnalyticsPage({ tickets }) {
   const data = useMemo(() => {
     const byStatus = { Open: 0, 'In Progress': 0, Resolved: 0 };
@@ -37,27 +40,30 @@ export default function AnalyticsPage({ tickets }) {
     let resolvedCount = 0;
 
     tickets.forEach((t) => {
-      const status = t.status || t.Status || 'Open';
-      const sNorm = status.toLowerCase().replace(/[\s_-]/g, '');
-      if (sNorm === 'inprogress') byStatus['In Progress']++;
-      else if (sNorm === 'resolved') byStatus['Resolved']++;
-      else byStatus['Open']++;
+      // Status (already normalized)
+      if (byStatus[t.status] !== undefined) {
+        byStatus[t.status]++;
+      } else {
+        byStatus['Open']++;
+      }
 
-      const priority = (t.priority || t.Priority || 'Medium');
-      const pKey = priority.charAt(0).toUpperCase() + priority.slice(1).toLowerCase();
-      if (byPriority[pKey] !== undefined) byPriority[pKey]++;
+      // Priority (already normalized)
+      if (byPriority[t.priority] !== undefined) {
+        byPriority[t.priority]++;
+      }
 
-      const agent = t.agent || t.Agent || t.assignedAgent || 'Unassigned';
+      // Agent
+      const agent = t.agent || 'Unassigned';
       byAgent[agent] = (byAgent[agent] || 0) + 1;
 
-      const created = t.createdAt || t.CreatedAt || t.timestamp || t.Timestamp;
-      if (created) {
-        const d = new Date(created);
+      // Date trend
+      if (t.createdAt) {
+        const d = new Date(t.createdAt);
         if (!isNaN(d.getTime())) {
           const dateKey = d.toISOString().slice(0, 10);
           byDate[dateKey] = (byDate[dateKey] || 0) + 1;
 
-          if (sNorm === 'resolved') {
+          if (t.status === 'Resolved') {
             const resTime = Date.now() - d.getTime();
             totalResolveTime += resTime;
             resolvedCount++;

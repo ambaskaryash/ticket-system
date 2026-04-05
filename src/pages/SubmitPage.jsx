@@ -221,7 +221,7 @@ export default function SubmitPage() {
 
         <div className="flex justify-center py-2 animate-fade-in" style={{ animationDelay: '100ms' }}>
           <ReCAPTCHA
-            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY || "YOUR_SITE_KEY_HERE"}
+            sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
             onChange={(val) => setCaptchaVal(val)}
             theme="dark"
           />

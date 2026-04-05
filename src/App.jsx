@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { useTickets } from './hooks/useTickets';
 import { useAgents } from './hooks/useAgents';
@@ -13,10 +13,25 @@ import SubmitPage from './pages/SubmitPage';
 import TrackTicket from './pages/TrackTicket';
 
 /* ═══════════════════════════════════════
+   PROTECTED ROUTE GUARD
+   ═══════════════════════════════════════ */
+function ProtectedRoute({ children }) {
+  const { isAuthenticated } = useAuth();
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    // Redirect to login, preserving the intended destination
+    return <Navigate to={`/admin/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  return children;
+}
+
+/* ═══════════════════════════════════════
    ADMIN SHELL — requires login
    ═══════════════════════════════════════ */
 function AdminShell() {
-  const { isAuthenticated, user, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const {
@@ -38,11 +53,6 @@ function AdminShell() {
   } = useTickets();
 
   const { agentNames } = useAgents();
-
-  // Not logged in → show login page
-  if (!isAuthenticated) {
-    return <LoginPage />;
-  }
 
   return (
     <div className="min-h-screen bg-dark-950 relative">
@@ -174,8 +184,17 @@ export default function App() {
           <Route path="/submit" element={<PublicSubmitPage />} />
           <Route path="/track" element={<PublicTrackPage />} />
           <Route path="/" element={<Navigate to="/submit" replace />} />
-          {/* Everything else — admin login required */}
-          <Route path="/admin/*" element={<AdminShell />} />
+          {/* Admin login — public route */}
+          <Route path="/admin/login" element={<LoginPage />} />
+          {/* Admin — protected by route guard */}
+          <Route
+            path="/admin/*"
+            element={
+              <ProtectedRoute>
+                <AdminShell />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </AuthProvider>
     </BrowserRouter>

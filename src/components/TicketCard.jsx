@@ -34,13 +34,12 @@ function timeAgo(dateStr) {
   }
 }
 
+/**
+ * TicketCard — uses normalized ticket fields (id, name, subject, status,
+ * priority, agent, createdAt). No more fallback patterns needed.
+ */
 export default function TicketCard({ ticket, onClick, index = 0, selected, onSelect }) {
-  const status = ticket.status || ticket.Status || 'open';
-  const priority = ticket.priority || ticket.Priority || 'medium';
-  const subject = ticket.subject || ticket.Subject || 'No subject';
-  const name = ticket.name || ticket.Name || ticket.userName || 'Unknown';
-  const agent = ticket.agent || ticket.Agent || ticket.assignedAgent || '';
-  const createdAt = ticket.createdAt || ticket.CreatedAt || ticket.timestamp || ticket.Timestamp || '';
+  const { status, priority, subject, name, agent, createdAt } = ticket;
 
   const sc = getStatusConfig(status);
   const pc = getPriorityConfig(priority);
@@ -85,7 +84,7 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
         <h3 className="text-white font-semibold text-sm leading-snug line-clamp-2 group-hover:text-accent-blue transition-colors duration-200 pl-0">
-          {subject}
+          {subject || 'No subject'}
         </h3>
         <span
           className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ring-1 ${sc.bg} ${sc.text} ${sc.ring}`}
@@ -99,7 +98,7 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-dark-400 text-[11px] sm:text-xs mb-4 ml-1">
         <span className="inline-flex items-center gap-1.5 font-medium">
           <UserIcon />
-          {name}
+          {name || 'Unknown'}
         </span>
         {createdAt && (
           <span className="inline-flex items-center gap-1">

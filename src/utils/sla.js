@@ -11,17 +11,17 @@ const SLA_HOURS = {
 };
 
 /**
- * Calculate SLA status for a ticket
- * @returns {{ label, hoursLeft, percent, status: 'ok' | 'warning' | 'breach' }}
+ * Calculate SLA status for a ticket.
+ * Expects normalized ticket fields (status, priority, createdAt).
+ * @returns {{ label, hoursLeft, percent, status: 'ok' | 'warning' | 'breach' | 'resolved' | 'unknown' }}
  */
 export function getSLAStatus(ticket) {
-  const status = (ticket.status || ticket.Status || '').toLowerCase().replace(/[\s_-]/g, '');
-  if (status === 'resolved') {
+  if (ticket.status === 'Resolved') {
     return { label: 'Resolved', hoursLeft: null, percent: 100, status: 'resolved' };
   }
 
-  const priority = (ticket.priority || ticket.Priority || 'medium').toLowerCase();
-  const createdAt = ticket.createdAt || ticket.CreatedAt || ticket.timestamp || ticket.Timestamp;
+  const priority = (ticket.priority || 'Medium').toLowerCase();
+  const createdAt = ticket.createdAt;
 
   if (!createdAt) {
     return { label: 'No date', hoursLeft: null, percent: 0, status: 'unknown' };
