@@ -29,18 +29,19 @@ function getAuthToken() {
 }
 
 /**
- * Generic fetch wrapper with error handling, timeout, and auth token injection.
+ * Generic fetch wrapper with error handling, timeout, and CORS-safe auth.
+ *
+ * NOTE: We intentionally do NOT send custom headers (like X-Auth-Token)
+ * because Google Apps Script cannot handle CORS preflight (OPTIONS) requests.
+ * Custom headers force the browser to send a preflight, which GAS rejects.
+ * Instead, the auth token is passed via query parameters (GET) or body (POST).
  */
 async function request(url, options = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
 
-  // Inject auth token if available
-  const token = getAuthToken();
+  // Only use CORS-safe headers — no custom headers to avoid preflight
   const headers = { ...options.headers };
-  if (token) {
-    headers['X-Auth-Token'] = token;
-  }
 
   try {
     const res = await fetch(url, {
@@ -116,12 +117,29 @@ async function retryWithBackoff(fn, maxRetries = 2, baseDelay = 1000) {
   throw lastError;
 }
 
+/* ─── Build GET URL with auth token (avoids custom headers) ─── */
+function buildGetUrl(params) {
+  const url = new URL(BASE_URL);
+  Object.entries(params).forEach(([key, value]) => {
+    url.searchParams.set(key, value);
+  });
+  const token = getAuthToken();
+  if (token) {
+    url.searchParams.set('token', token);
+  }
+  return url.toString();
+}
+
 /* ─── POST helper (text/plain to avoid CORS preflight) ─── */
 function post(payload) {
+  // Inject auth token into the POST body (not as a custom header)
+  const token = getAuthToken();
+  const body = token ? { ...payload, token } : payload;
+
   return request(BASE_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'text/plain' },
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   });
 }
 
@@ -131,14 +149,14 @@ function post(payload) {
 
 export async function getTickets() {
   const data = await retryWithBackoff(() =>
-    deduplicatedGet(`${BASE_URL}?action=getTickets`)
+    deduplicatedGet(buildGetUrl({ action: 'getTickets' }))
   );
   return normalizeTickets(data);
 }
 
 export async function getTicketById(id) {
   const data = await retryWithBackoff(() =>
-    request(`${BASE_URL}?action=getTicketById&id=${encodeURIComponent(id)}`)
+    request(buildGetUrl({ action: 'getTicketById', id }))
   );
   return normalizeTicket(data);
 }
@@ -169,7 +187,7 @@ export async function bulkUpdateTickets(ids, updates) {
 
 export async function getNotes(ticketId) {
   const data = await retryWithBackoff(() =>
-    request(`${BASE_URL}?action=getNotes&ticketId=${encodeURIComponent(ticketId)}`)
+    request(buildGetUrl({ action: 'getNotes', ticketId }))
   );
   return normalizeNotes(data);
 }
@@ -184,7 +202,7 @@ export async function addNote(ticketId, note) {
 
 export async function getAgents() {
   const data = await retryWithBackoff(() =>
-    deduplicatedGet(`${BASE_URL}?action=getAgents`)
+    deduplicatedGet(buildGetUrl({ action: 'getAgents' }))
   );
   return normalizeAgents(data);
 }
@@ -210,5 +228,5 @@ export async function login(credentials) {
 }
 
 export async function getUsers() {
-  return deduplicatedGet(`${BASE_URL}?action=getUsers`);
+  return deduplicatedGet(buildGetUrl({ action: 'getUsers' }));
 }
