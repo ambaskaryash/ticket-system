@@ -181,6 +181,10 @@ export async function bulkUpdateTickets(ids, updates) {
   return post({ action: 'bulkUpdate', ids, updates });
 }
 
+export async function sendEmail(payload) {
+  return post({ action: 'sendEmail', ...payload });
+}
+
 /* ══════════════════════════════════════════════
    NOTES ENDPOINTS
    ══════════════════════════════════════════════ */

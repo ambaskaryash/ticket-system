@@ -7,6 +7,8 @@ import CreateTicketModal from '../components/CreateTicketModal';
 import BulkActionBar from '../components/BulkActionBar';
 import ExportDropdown from '../components/ExportDropdown';
 import ConfirmDialog from '../components/ConfirmDialog';
+import EmailStudentModal from '../components/EmailStudentModal';
+import { sendEmail } from '../utils/api';
 
 const SearchIcon = () => (
   <svg className="w-4 h-4 text-dark-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -49,6 +51,7 @@ export default function DashboardPage({
   const [showCreate, setShowCreate] = useState(false);
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkConfirm, setBulkConfirm] = useState(null);
+  const [emailTicket, setEmailTicket] = useState(null);
 
   const debouncedSearch = useDebouncedValue(search);
 
@@ -259,6 +262,7 @@ export default function DashboardPage({
                 onClick={setSelectedTicket}
                 selected={selectedIds.has(ticket.id)}
                 onSelect={toggleSelect}
+                onEmailClick={setEmailTicket}
               />
             ))}
       </section>
@@ -311,6 +315,11 @@ export default function DashboardPage({
         onClose={() => setShowCreate(false)}
         onCreate={createTicket}
         agentNames={agentNames}
+      />
+      <EmailStudentModal
+        ticket={emailTicket}
+        onClose={() => setEmailTicket(null)}
+        onSend={sendEmail}
       />
 
       {/* Bulk action bar */}

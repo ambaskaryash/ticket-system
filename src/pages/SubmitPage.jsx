@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { createTicket } from '../utils/api';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Logo from '../components/Logo';
@@ -125,6 +126,22 @@ export default function SubmitPage() {
 
   return (
     <div className="max-w-lg mx-auto animate-fade-in">
+      {/* Top Navigation */}
+      <div className="flex justify-end gap-3 mb-6">
+        <Link 
+          to="/track" 
+          className="px-4 py-1.5 rounded-lg text-xs font-medium text-dark-300 hover:text-white bg-dark-800/40 hover:bg-dark-700/60 transition-colors backdrop-blur-sm border border-dark-700/50"
+        >
+          Track Ticket
+        </Link>
+        <Link 
+          to="/admin/login" 
+          className="px-4 py-1.5 rounded-lg text-xs font-medium text-accent-blue/80 hover:text-accent-blue bg-accent-blue/10 hover:bg-accent-blue/20 transition-colors backdrop-blur-sm border border-accent-blue/20"
+        >
+          Admin Login
+        </Link>
+      </div>
+
       {/* Header */}
       <div className="text-center mb-8">
         <Logo className="w-14 h-14 mx-auto mb-4" glow />
@@ -244,9 +261,9 @@ export default function SubmitPage() {
       </form>
 
       <div className="text-center mt-6">
-        <a href="/track" className="text-accent-blue/70 hover:text-accent-blue text-sm transition-colors decoration-accent-blue/30 underline-offset-4 hover:underline">
+        <Link to="/track" className="text-accent-blue/70 hover:text-accent-blue text-sm transition-colors decoration-accent-blue/30 underline-offset-4 hover:underline">
           Check existing ticket status &rarr;
-        </a>
+        </Link>
       </div>
     </div>
   );

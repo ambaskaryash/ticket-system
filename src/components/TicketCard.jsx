@@ -38,7 +38,7 @@ function timeAgo(dateStr) {
  * TicketCard — uses normalized ticket fields (id, name, subject, status,
  * priority, agent, createdAt). No more fallback patterns needed.
  */
-export default function TicketCard({ ticket, onClick, index = 0, selected, onSelect }) {
+export default function TicketCard({ ticket, onClick, index = 0, selected, onSelect, onEmailClick }) {
   const { status, priority, subject, name, agent, createdAt } = ticket;
 
   const sc = getStatusConfig(status);
@@ -125,14 +125,28 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
             </span>
           )}
         </div>
-        {agent && (
-          <span className="text-dark-500 text-[11px] flex items-center gap-1">
-            <span className="w-5 h-5 rounded-full bg-accent-indigo/20 flex items-center justify-center text-accent-indigo text-[10px] font-bold uppercase">
-              {agent.charAt(0)}
+        <div className="flex items-center gap-3">
+          {ticket.email && (
+            <button
+              title="Email User"
+              onClick={(e) => { e.stopPropagation(); onEmailClick?.(ticket); }}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent-blue/10 text-accent-blue hover:bg-accent-blue/20 hover:text-accent-blue transition-colors cursor-pointer text-[10px] font-bold uppercase tracking-wider border border-accent-blue/20"
+            >
+              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Reply
+            </button>
+          )}
+          {agent && (
+            <span className="text-dark-500 text-[11px] flex items-center gap-1">
+              <span className="w-5 h-5 rounded-full bg-accent-indigo/20 flex items-center justify-center text-accent-indigo text-[10px] font-bold uppercase">
+                {agent.charAt(0)}
+              </span>
+              {agent}
             </span>
-            {agent}
-          </span>
-        )}
+          )}
+        </div>
       </div>
     </div>
   );
