@@ -16,6 +16,9 @@ export default function SubmitPage() {
     attachment: null,
     attachmentName: '',
     attachmentMimeType: '',
+    phone: '',
+    course: '',
+    batchTiming: '',
   });
   const [submitted, setSubmitted] = useState(false);
   const [ticketId, setTicketId] = useState('');
@@ -112,7 +115,7 @@ export default function SubmitPage() {
             <button
               onClick={() => {
                 setSubmitted(false);
-                setForm({ name: '', email: '', subject: '', description: '', priority: 'Medium', attachment: null, attachmentName: '', attachmentMimeType: '' });
+                setForm({ name: '', email: '', subject: '', description: '', priority: 'Medium', attachment: null, attachmentName: '', attachmentMimeType: '', phone: '', course: '', batchTiming: '' });
               }}
               className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 transition-all cursor-pointer"
             >
@@ -171,6 +174,36 @@ export default function SubmitPage() {
               onChange={set('email')}
               placeholder="john@example.com"
               type="email"
+              className="glass-input w-full px-3 py-2.5 text-sm"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone Number</label>
+            <input
+              value={form.phone}
+              onChange={set('phone')}
+              placeholder="+1 234 567 8900"
+              className="glass-input w-full px-3 py-2.5 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
+            <input
+              value={form.course}
+              onChange={set('course')}
+              placeholder="e.g., UI/UX Design"
+              className="glass-input w-full px-3 py-2.5 text-sm"
+            />
+          </div>
+          <div>
+            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
+            <input
+              value={form.batchTiming}
+              onChange={set('batchTiming')}
+              placeholder="e.g., Mon-Wed 6PM"
               className="glass-input w-full px-3 py-2.5 text-sm"
             />
           </div>
