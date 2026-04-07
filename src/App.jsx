@@ -9,6 +9,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AgentsPage from './pages/AgentsPage';
+import TemplatesPage from './pages/TemplatesPage';
 import SubmitPage from './pages/SubmitPage';
 import TrackTicket from './pages/TrackTicket';
 
@@ -131,6 +132,7 @@ function AdminShell() {
             />
             <Route path="/analytics" element={<AnalyticsPage tickets={allTickets} />} />
             <Route path="/agents" element={<AgentsPage />} />
+            <Route path="/templates" element={<TemplatesPage />} />
           </Routes>
         </main>
       </div>

@@ -108,26 +108,30 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
               [Ticket #{ticket.id}] Re: {ticket.subject}
             </div>
           </div>
-          {templates.length > 0 && (
-            <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0 flex justify-between">
-                <span>Canned Response</span>
-              </label>
-              <select
-                className="glass-input w-full px-3 py-2 text-sm text-dark-300 bg-dark-900 border-dark-600/30"
-                onChange={(e) => {
-                  const tmpl = templates.find(t => t.id === e.target.value);
-                  if (tmpl) setMessage(tmpl.content);
-                  e.target.value = ""; // reset
-                }}
-              >
-                <option value="">-- Apply a Template --</option>
-                {templates.map(t => (
-                  <option key={t.id} value={t.id}>{t.title}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div>
+            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider mb-1.5 pt-0 flex justify-between items-center">
+              <span>Canned Response</span>
+            </label>
+            <select
+              className="glass-input w-full px-3 py-2 text-sm text-dark-300 bg-dark-900 border-dark-600/30"
+              disabled={templates.length === 0}
+              onChange={(e) => {
+                const tmpl = templates.find(t => t.id === e.target.value);
+                if (tmpl) setMessage(tmpl.content);
+                e.target.value = ""; // reset
+              }}
+            >
+              <option value="">
+                {templates.length === 0 ? "-- No templates available --" : "-- Apply a Template --"}
+              </option>
+              {templates.map(t => (
+                <option key={t.id} value={t.id}>{t.title}</option>
+              ))}
+            </select>
+            {templates.length === 0 && (
+               <p className="text-[10px] text-dark-500 mt-1">If you want to use templates, please create one in the Templates page first.</p>
+            )}
+          </div>
           <div className="!text-dark-900 bg-white rounded-xl overflow-hidden mt-2 border border-dark-600/30">
             <ReactQuill
               theme="snow"
