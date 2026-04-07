@@ -1,4 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { getTemplates } from '../utils/api';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const XIcon = () => (
   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -8,6 +11,7 @@ const XIcon = () => (
 
 export default function EmailStudentModal({ ticket, onClose, onSend }) {
   const [message, setMessage] = useState('');
+  const [templates, setTemplates] = useState([]);
   const [sending, setSending] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
   const overlayRef = useRef(null);
@@ -15,6 +19,7 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
   useEffect(() => {
     if (ticket) {
       document.body.style.overflow = 'hidden';
+      getTemplates().then(setTemplates).catch(console.error);
       return () => { document.body.style.overflow = ''; };
     }
   }, [ticket]);
@@ -103,14 +108,40 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
               [Ticket #{ticket.id}] Re: {ticket.subject}
             </div>
           </div>
-          <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0">Message</label>
-            <textarea
+          {templates.length > 0 && (
+            <div>
+              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0 flex justify-between">
+                <span>Canned Response</span>
+              </label>
+              <select
+                className="glass-input w-full px-3 py-2 text-sm text-dark-300 bg-dark-900 border-dark-600/30"
+                onChange={(e) => {
+                  const tmpl = templates.find(t => t.id === e.target.value);
+                  if (tmpl) setMessage(tmpl.content);
+                  e.target.value = ""; // reset
+                }}
+              >
+                <option value="">-- Apply a Template --</option>
+                {templates.map(t => (
+                  <option key={t.id} value={t.id}>{t.title}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="!text-dark-900 bg-white rounded-xl overflow-hidden mt-2 border border-dark-600/30">
+            <ReactQuill
+              theme="snow"
               value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Type your reply here..."
-              rows={6}
-              className="glass-input w-full px-3 py-3 text-sm resize-none text-white"
+              onChange={setMessage}
+              placeholder="Type your beautifully formatted reply here..."
+              modules={{
+                toolbar: [
+                  ['bold', 'italic', 'underline'],
+                  [{ list: 'ordered' }, { list: 'bullet' }],
+                  ['link', 'clean']
+                ]
+              }}
+              className="h-64 pb-12"
             />
           </div>
         </div>
@@ -125,7 +156,7 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
           </button>
           <button
             onClick={handleSend}
-            disabled={!message.trim() || sending}
+            disabled={!message || message === '<p><br></p>' || sending}
             className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             {sending ? (

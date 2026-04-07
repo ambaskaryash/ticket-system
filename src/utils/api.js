@@ -224,6 +224,25 @@ export async function deleteAgent(email) {
 }
 
 /* ══════════════════════════════════════════════
+   TEMPLATES ENDPOINTS
+   ══════════════════════════════════════════════ */
+
+export async function getTemplates() {
+  const data = await retryWithBackoff(() =>
+    deduplicatedGet(buildGetUrl({ action: 'getTemplates' }))
+  );
+  return data?.templates || [];
+}
+
+export async function addTemplate(template) {
+  return post({ action: 'addTemplate', ...template });
+}
+
+export async function deleteTemplate(id) {
+  return post({ action: 'deleteTemplate', id });
+}
+
+/* ══════════════════════════════════════════════
    AUTH ENDPOINTS
    ══════════════════════════════════════════════ */
 
