@@ -60,7 +60,16 @@ export default function DashboardPage({
     return tickets.filter((t) => {
       if (debouncedSearch) {
         const q = debouncedSearch.toLowerCase();
-        if (!t.name.toLowerCase().includes(q) && !t.subject.toLowerCase().includes(q)) return false;
+        const searchPool = [
+          t.name,
+          t.subject,
+          t.phone,
+          t.course,
+          t.batchTiming,
+          t.id
+        ].join(' ').toLowerCase();
+        
+        if (!searchPool.includes(q)) return false;
       }
       if (statusFilter !== 'All' && t.status !== statusFilter) return false;
       if (priorityFilter !== 'All' && t.priority !== priorityFilter) return false;

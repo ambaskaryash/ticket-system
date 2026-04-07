@@ -39,7 +39,7 @@ function timeAgo(dateStr) {
  * priority, agent, createdAt). No more fallback patterns needed.
  */
 export default function TicketCard({ ticket, onClick, index = 0, selected, onSelect, onEmailClick }) {
-  const { status, priority, subject, name, agent, createdAt } = ticket;
+  const { status, priority, subject, name, agent, createdAt, type } = ticket;
 
   const sc = getStatusConfig(status);
   const pc = getPriorityConfig(priority);
@@ -92,11 +92,16 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
           <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
           {sc.label}
         </span>
+        {type && (
+          <span className="shrink-0 px-2 py-0.5 rounded-md bg-dark-800 text-dark-300 text-[10px] font-bold border border-dark-700/50 uppercase tracking-tight">
+            {type}
+          </span>
+        )}
       </div>
 
       {/* Meta */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-dark-400 text-[11px] sm:text-xs mb-4 ml-1">
-        <span className="inline-flex items-center gap-1.5 font-medium">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-dark-400 text-[11px] sm:text-xs mb-3 ml-1">
+        <span className="inline-flex items-center gap-1.5 font-medium text-dark-200">
           <UserIcon />
           {name || 'Unknown'}
         </span>
@@ -109,8 +114,8 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
           </span>
         )}
         {ticket.course && (
-          <span className="inline-flex items-center gap-1 px-1.5 bg-dark-800 rounded">
-            {ticket.course} {ticket.batchTiming ? `(${ticket.batchTiming})` : ''}
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-accent-blue/5 text-accent-blue/80 border border-accent-blue/10 rounded text-[10px] font-bold">
+            {ticket.course} {ticket.batchTiming ? `— ${ticket.batchTiming}` : ''}
           </span>
         )}
         {createdAt && (
@@ -120,6 +125,13 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
           </span>
         )}
       </div>
+
+      {/* Description Snippet */}
+      {ticket.description && (
+        <p className="text-dark-500 text-[11px] leading-relaxed line-clamp-2 mb-4 ml-1 italic group-hover:text-dark-400 transition-colors">
+          "{ticket.description.replace(/<[^>]*>/g, '').slice(0, 100)}..."
+        </p>
+      )}
 
       {/* Footer */}
       <div className="flex items-center justify-between">
