@@ -147,11 +147,16 @@ function post(payload) {
    TICKET ENDPOINTS
    ══════════════════════════════════════════════ */
 
-export async function getTickets() {
+export async function getTickets(page = 1, pageSize = 0) {
   const data = await retryWithBackoff(() =>
-    deduplicatedGet(buildGetUrl({ action: 'getTickets' }))
+    deduplicatedGet(buildGetUrl({ action: 'getTickets', page, pageSize }))
   );
-  return normalizeTickets(data);
+  
+  // Data from backend is now { tickets: [...], total: N }
+  return {
+    tickets: normalizeTickets(data),
+    total: data?.total || 0
+  };
 }
 
 export async function getTicketById(id) {

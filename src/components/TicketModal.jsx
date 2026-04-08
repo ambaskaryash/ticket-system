@@ -40,6 +40,9 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
         subject: ticket.subject || '',
         description: ticket.description || '',
         priority: ticket.priority || 'Medium',
+        phone: ticket.phone || '',
+        course: ticket.course || '',
+        batchTiming: ticket.batchTiming || '',
       });
       setIsEditing(false);
       setActiveTab('details');
@@ -93,6 +96,9 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
         Email: form.email,
         Subject: form.subject,
         Description: form.description,
+        Phone: form.phone,
+        Course: form.course,
+        BatchTiming: form.batchTiming,
       });
       setIsEditing(false);
       handleClose();
@@ -164,7 +170,10 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
     form.name !== (ticket.name || '') ||
     form.email !== (ticket.email || '') ||
     form.subject !== (ticket.subject || '') ||
-    form.description !== (ticket.description || '');
+    form.description !== (ticket.description || '') ||
+    form.phone !== (ticket.phone || '') ||
+    form.course !== (ticket.course || '') ||
+    form.batchTiming !== (ticket.batchTiming || '');
 
   return (
     <>
@@ -266,6 +275,20 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                         <input value={form.email} onChange={set('email')} className="glass-input w-full px-3 py-2.5 text-sm" />
                       </div>
                     </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone</label>
+                        <input value={form.phone} onChange={set('phone')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                      </div>
+                      <div>
+                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
+                        <input value={form.course} onChange={set('course')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
+                      <input value={form.batchTiming} onChange={set('batchTiming')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                    </div>
                     <div>
                       <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Description</label>
                       <textarea
@@ -299,11 +322,16 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
                       <DetailField label="Reporter" value={form.name} />
                       <DetailField label="Email" value={form.email} />
-                      <DetailField label="Created" value={ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : '—'} />
+                      <DetailField label="Phone" value={form.phone} />
+                      <DetailField label="Course" value={form.course} />
+                      <DetailField label="Batch" value={form.batchTiming} />
                       <DetailField label="Assigned Agent" value={form.agent || 'Unassigned'} />
+                      <div className="col-span-2">
+                        <DetailField label="Created" value={ticket.createdAt ? new Date(ticket.createdAt).toLocaleString() : '—'} />
+                      </div>
                     </div>
                     <div>
                       <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">Description</label>

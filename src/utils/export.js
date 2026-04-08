@@ -10,12 +10,15 @@ import 'jspdf-autotable';
  * Expects normalized ticket fields.
  */
 export function exportToCSV(tickets, filename = 'tickets') {
-  const headers = ['ID', 'Name', 'Email', 'Subject', 'Description', 'Status', 'Priority', 'Agent', 'Created At'];
+  const headers = ['ID', 'Name', 'Email', 'Phone', 'Course', 'Batch Timing', 'Subject', 'Description', 'Status', 'Priority', 'Agent', 'Created At'];
 
   const rows = tickets.map((t) => [
     t.id,
     t.name,
     t.email,
+    t.phone,
+    t.course,
+    t.batchTiming,
     t.subject,
     `"${(t.description || '').replace(/"/g, '""')}"`,
     t.status,
@@ -56,16 +59,17 @@ export function exportToPDF(tickets, filename = 'tickets') {
   doc.text(`Total tickets: ${tickets.length}`, 14, 34);
 
   // Table
-  const headers = [['ID', 'Name', 'Subject', 'Status', 'Priority', 'Agent', 'Created']];
+  const headers = [['ID', 'Name', 'Course', 'Subject', 'Status', 'Priority', 'Agent', 'Created']];
 
   const rows = tickets.map((t) => [
     String(t.id),
     t.name,
-    (t.subject || '').substring(0, 40),
+    t.course || '—',
+    (t.subject || '').substring(0, 30),
     t.status,
     t.priority,
     t.agent || 'Unassigned',
-    t.createdAt,
+    t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '—',
   ]);
 
   doc.autoTable({

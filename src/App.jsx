@@ -51,6 +51,11 @@ function AdminShell() {
     removeToast,
     showArchived,
     setShowArchived,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    total,
   } = useTickets();
 
   const { agentNames } = useAgents();
@@ -126,6 +131,10 @@ function AdminShell() {
                   bulkUpdate={bulkUpdate}
                   showArchived={showArchived}
                   setShowArchived={setShowArchived}
+                  page={page}
+                  setPage={setPage}
+                  pageSize={pageSize}
+                  total={total}
                   agentNames={agentNames}
                 />
               }

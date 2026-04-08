@@ -31,6 +31,9 @@ export function normalizeTicket(raw) {
     attachment: raw.attachment || raw.Attachment || null,
     attachmentName: raw.attachmentName || raw.AttachmentName || '',
     attachmentMimeType: raw.attachmentMimeType || raw.AttachmentMimeType || '',
+    phone: sanitizeText(raw.phone || raw.Phone || ''),
+    course: sanitizeText(raw.course || raw.Course || ''),
+    batchTiming: sanitizeText(raw.batchTiming || raw.BatchTiming || ''),
   };
 }
 

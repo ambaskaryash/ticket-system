@@ -10,6 +10,9 @@ export default function CreateTicketModal({ isOpen, onClose, onCreate, agentName
     description: '',
     priority: 'Medium',
     agent: '',
+    phone: '',
+    course: '',
+    batchTiming: '',
   });
   const [saving, setSaving] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -18,7 +21,7 @@ export default function CreateTicketModal({ isOpen, onClose, onCreate, agentName
 
   useEffect(() => {
     if (isOpen) {
-      setForm({ name: '', email: '', subject: '', description: '', priority: 'Medium', agent: '' });
+      setForm({ name: '', email: '', subject: '', description: '', priority: 'Medium', agent: '', phone: '', course: '', batchTiming: '' });
       setTimeout(() => firstInputRef.current?.focus(), 100);
       document.body.style.overflow = 'hidden';
       return () => { document.body.style.overflow = ''; };
@@ -122,6 +125,40 @@ export default function CreateTicketModal({ isOpen, onClose, onCreate, agentName
                 className="glass-input w-full px-3 py-2.5 text-sm"
               />
             </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone</label>
+              <input
+                type="text"
+                value={form.phone}
+                onChange={set('phone')}
+                placeholder="+1 555-0000"
+                className="glass-input w-full px-3 py-2.5 text-sm"
+              />
+            </div>
+            <div>
+              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
+              <input
+                type="text"
+                value={form.course}
+                onChange={set('course')}
+                placeholder="e.g. React Prep"
+                className="glass-input w-full px-3 py-2.5 text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
+            <input
+              type="text"
+              value={form.batchTiming}
+              onChange={set('batchTiming')}
+              placeholder="e.g. 6PM - 8PM"
+              className="glass-input w-full px-3 py-2.5 text-sm"
+            />
+          </div>
           </div>
 
           {/* Subject */}

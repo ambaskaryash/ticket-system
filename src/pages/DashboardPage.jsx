@@ -41,6 +41,10 @@ export default function DashboardPage({
   bulkUpdate,
   showArchived,
   setShowArchived,
+  page,
+  setPage,
+  pageSize,
+  total,
   agentNames,
 }) {
   const [search, setSearch] = useState('');
@@ -238,7 +242,10 @@ export default function DashboardPage({
         <div className="flex items-center justify-between animate-fade-in">
           <p className="text-dark-500 text-sm">
             Showing <span className="text-dark-300 font-semibold">{filtered.length}</span>{' '}
-            {filtered.length === 1 ? 'ticket' : 'tickets'}
+            {filtered.length === 1 ? 'ticket' : 'tickets'} 
+            {total > pageSize && (
+              <span className="text-dark-600"> of {total} total</span>
+            )}
             {(statusFilter !== 'All' || priorityFilter !== 'All' || debouncedSearch) && (
               <span className="text-dark-600"> (filtered)</span>
             )}
@@ -275,6 +282,34 @@ export default function DashboardPage({
               />
             ))}
       </section>
+
+      {/* ── Pagination ── */}
+      {!loading && total > pageSize && (
+        <div className="flex items-center justify-between border-t border-dark-700/20 pt-6 mt-6 animate-fade-in">
+          <p className="text-dark-500 text-xs">
+            Page <span className="text-white font-medium">{page}</span> of {Math.ceil(total / pageSize)}
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-dark-300 hover:text-white bg-dark-800 border border-dark-700/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              Previous
+            </button>
+            <div className="flex items-center gap-1">
+               {/* Show a few page numbers if needed, but Prev/Next is better for "Basic" */}
+            </div>
+            <button
+              onClick={() => setPage(p => p + 1)}
+              disabled={page >= Math.ceil(total / pageSize)}
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-dark-300 hover:text-white bg-dark-800 border border-dark-700/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Empty state ── */}
       {!loading && filtered.length === 0 && (

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   getTickets,
+  getAgents,
   updateTicket as apiUpdateTicket,
   createTicket as apiCreateTicket,
   deleteTicket as apiDeleteTicket,
@@ -22,6 +23,11 @@ export function useTickets() {
   const [error, setError] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [showArchived, setShowArchived] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [total, setTotal] = useState(0);
+  const [agents, setAgents] = useState([]);
+  const [serverStats, setServerStats] = useState({ open: 0, inProgress: 0, resolved: 0 });
   const toastIdRef = useRef(0);
   const pollRef = useRef(null);
   const isFetchingRef = useRef(false);
@@ -51,7 +57,14 @@ export function useTickets() {
         if (!silent) setLoading(true);
         setError(null);
 
-        const ticketList = await getTickets();
+        const [result, agentList] = await Promise.all([
+          getTickets(page, pageSize),
+          getAgents()
+        ]);
+        const ticketList = result.tickets;
+        const totalCount = result.total;
+
+        setAgents(agentList || []);
 
         // Detect new incoming tickets during polling
         if (silent && tickets.length > 0) {
@@ -64,6 +77,8 @@ export function useTickets() {
         }
 
         setTickets(ticketList);
+        setTotal(totalCount);
+        if (result.stats) setServerStats(result.stats);
       } catch (err) {
         setError(err.message);
         if (!silent) addToast(err.message, 'error');
@@ -78,7 +93,7 @@ export function useTickets() {
   useEffect(() => {
     fetchTickets();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [page, pageSize]);
 
   /* ── 10-Second Smart-Polling (Real-Time Simulation) ── */
   useEffect(() => {
@@ -195,12 +210,12 @@ export function useTickets() {
     [tickets, addToast]
   );
 
-  /* ── Computed stats (using normalized field names) ── */
+  /* ── Computed stats (using server-side counts for accuracy with pagination) ── */
   const stats = {
-    total: activeTickets.length,
-    open: activeTickets.filter((t) => t.status === 'Open').length,
-    inProgress: activeTickets.filter((t) => t.status === 'In Progress').length,
-    resolved: activeTickets.filter((t) => t.status === 'Resolved').length,
+    total,
+    open: serverStats.open,
+    inProgress: serverStats.inProgress,
+    resolved: serverStats.resolved,
   };
 
   return {
@@ -220,6 +235,12 @@ export function useTickets() {
     removeToast,
     showArchived,
     setShowArchived,
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    total,
+    agentNames: agents.map(a => a.name),
   };
 }
 
