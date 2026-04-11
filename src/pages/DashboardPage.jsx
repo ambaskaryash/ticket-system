@@ -56,6 +56,8 @@ export default function DashboardPage({
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkConfirm, setBulkConfirm] = useState(null);
   const [emailTicket, setEmailTicket] = useState(null);
+  const [showBulkResolveModal, setShowBulkResolveModal] = useState(false);
+  const [bulkResolvingReason, setBulkResolvingReason] = useState('');
 
   const debouncedSearch = useDebouncedValue(search);
 
@@ -98,17 +100,20 @@ export default function DashboardPage({
   };
 
   const handleBulkResolve = () => {
-    setBulkConfirm({
-      title: `Resolve ${selectedIds.size} tickets?`,
-      message: 'Selected tickets will be marked as Resolved.',
-      label: 'Resolve All',
-      color: 'blue',
-      action: async () => {
-        await bulkUpdate([...selectedIds], { status: 'Resolved', Status: 'Resolved' });
-        setSelectedIds(new Set());
-        setBulkConfirm(null);
-      },
+    setBulkResolvingReason('');
+    setShowBulkResolveModal(true);
+  };
+
+  const handleBulkResolveConfirm = async () => {
+    if (!bulkResolvingReason.trim()) return;
+    await bulkUpdate([...selectedIds], {
+      status: 'Resolved',
+      Status: 'Resolved',
+      resolvingReason: bulkResolvingReason.trim(),
     });
+    setSelectedIds(new Set());
+    setShowBulkResolveModal(false);
+    setBulkResolvingReason('');
   };
 
   const handleBulkAssign = async (agent) => {
@@ -385,6 +390,64 @@ export default function DashboardPage({
         onConfirm={bulkConfirm?.action || (() => {})}
         onCancel={() => setBulkConfirm(null)}
       />
+
+      {/* Bulk Resolve Reason Modal */}
+      {showBulkResolveModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-overlay-in">
+          <div className="w-full max-w-md mx-4 bg-dark-900 border border-dark-700/50 rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-dark-700/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-white text-base font-semibold">Resolve {selectedIds.size} Ticket{selectedIds.size > 1 ? 's' : ''}</h3>
+                  <p className="text-dark-400 text-xs mt-0.5">How were these tickets resolved?</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5">
+              <label className="text-dark-300 text-sm font-medium block mb-2">
+                Resolving Reason <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                value={bulkResolvingReason}
+                onChange={(e) => setBulkResolvingReason(e.target.value)}
+                placeholder="Describe how these tickets were resolved…"
+                rows={4}
+                autoFocus
+                className="glass-input w-full px-4 py-3 text-sm resize-none placeholder:text-dark-600"
+              />
+              <p className="text-dark-600 text-xs mt-2">This reason will be recorded for all {selectedIds.size} selected ticket{selectedIds.size > 1 ? 's' : ''}.</p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center gap-3 p-5 border-t border-dark-700/50">
+              <button
+                onClick={() => { setShowBulkResolveModal(false); setBulkResolvingReason(''); }}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleBulkResolveConfirm}
+                disabled={!bulkResolvingReason.trim()}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Resolve All
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

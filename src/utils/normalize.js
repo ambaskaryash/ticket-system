@@ -34,6 +34,7 @@ export function normalizeTicket(raw) {
     phone: sanitizeText(raw.phone || raw.Phone || ''),
     course: sanitizeText(raw.course || raw.Course || ''),
     batchTiming: sanitizeText(raw.batchTiming || raw.BatchTiming || ''),
+    resolvingReason: sanitizeText(raw.resolvingReason || raw.ResolvingReason || ''),
   };
 }
 

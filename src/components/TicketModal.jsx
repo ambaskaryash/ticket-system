@@ -27,6 +27,8 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
   const [newNote, setNewNote] = useState('');
   const [notesLoading, setNotesLoading] = useState(false);
   const [confirmAction, setConfirmAction] = useState(null);
+  const [showResolveModal, setShowResolveModal] = useState(false);
+  const [resolvingReason, setResolvingReason] = useState('');
   const overlayRef = useRef(null);
 
   /* ── Populate form from normalized ticket ── */
@@ -87,7 +89,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
   const handleSave = async () => {
     setSaving(true);
     try {
-      await onUpdate(ticket.id, {
+      const payload = {
         ...form,
         Status: form.status,
         Agent: form.agent,
@@ -99,7 +101,12 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
         Phone: form.phone,
         Course: form.course,
         BatchTiming: form.batchTiming,
-      });
+      };
+      // Include resolving reason if status is being changed to Resolved
+      if (form.resolvingReason) {
+        payload.resolvingReason = form.resolvingReason;
+      }
+      await onUpdate(ticket.id, payload);
       setIsEditing(false);
       handleClose();
     } catch {
@@ -155,6 +162,32 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
     });
   };
 
+  /* ── Status change handler — intercept "Resolved" to ask for reason ── */
+  const handleStatusChange = (e) => {
+    const newStatus = e.target.value;
+    if (newStatus === 'Resolved' && (ticket.status || 'Open') !== 'Resolved') {
+      setResolvingReason('');
+      setShowResolveModal(true);
+      // Temporarily set form status so the dropdown reflects "Resolved"
+      setForm((prev) => ({ ...prev, status: 'Resolved' }));
+    } else {
+      setForm((prev) => ({ ...prev, status: newStatus, resolvingReason: '' }));
+    }
+  };
+
+  const handleResolveConfirm = () => {
+    if (!resolvingReason.trim()) return;
+    setForm((prev) => ({ ...prev, status: 'Resolved', resolvingReason: resolvingReason.trim() }));
+    setShowResolveModal(false);
+  };
+
+  const handleResolveCancel = () => {
+    // Revert status back to original
+    setForm((prev) => ({ ...prev, status: ticket.status || 'Open' }));
+    setResolvingReason('');
+    setShowResolveModal(false);
+  };
+
   const set = (field) => (e) => setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   if (!ticket) return null;
@@ -173,7 +206,8 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
     form.description !== (ticket.description || '') ||
     form.phone !== (ticket.phone || '') ||
     form.course !== (ticket.course || '') ||
-    form.batchTiming !== (ticket.batchTiming || '');
+    form.batchTiming !== (ticket.batchTiming || '') ||
+    (form.resolvingReason && form.resolvingReason !== (ticket.resolvingReason || ''));
 
   return (
     <>
@@ -307,7 +341,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                       </div>
                       <div>
                         <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Status</label>
-                        <select value={form.status} onChange={set('status')} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
+                        <select value={form.status} onChange={handleStatusChange} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
                           {STATUSES.map((s) => <option key={s} value={s} className="bg-dark-900">{s}</option>)}
                         </select>
                       </div>
@@ -366,7 +400,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                       <div className="grid grid-cols-2 gap-4">
                         <div>
                           <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Status</label>
-                          <select value={form.status} onChange={set('status')} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
+                          <select value={form.status} onChange={handleStatusChange} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
                             {STATUSES.map((s) => <option key={s} value={s} className="bg-dark-900">{s}</option>)}
                           </select>
                         </div>
@@ -379,6 +413,21 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                         </div>
                       </div>
                     </div>
+
+                    {/* Show resolving reason if ticket is resolved */}
+                    {(ticket.resolvingReason || form.resolvingReason) && (
+                      <div className="mt-4">
+                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">Resolving Reason</label>
+                        <div className="glass-panel p-4 text-sm text-emerald-300 leading-relaxed whitespace-pre-wrap border border-emerald-500/20 bg-emerald-500/5">
+                          <div className="flex items-start gap-2">
+                            <svg className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{form.resolvingReason || ticket.resolvingReason}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </>
                 )}
               </>
@@ -511,6 +560,64 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
         onConfirm={confirmAction?.action || (() => {})}
         onCancel={() => setConfirmAction(null)}
       />
+
+      {/* Resolve Reason Modal */}
+      {showResolveModal && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-overlay-in">
+          <div className="w-full max-w-md mx-4 bg-dark-900 border border-dark-700/50 rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-dark-700/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 className="text-white text-base font-semibold">Resolve Ticket</h3>
+                  <p className="text-dark-400 text-xs mt-0.5">How was this ticket resolved?</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-5">
+              <label className="text-dark-300 text-sm font-medium block mb-2">
+                Resolving Reason <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                value={resolvingReason}
+                onChange={(e) => setResolvingReason(e.target.value)}
+                placeholder="Describe how this ticket was resolved…"
+                rows={4}
+                autoFocus
+                className="glass-input w-full px-4 py-3 text-sm resize-none placeholder:text-dark-600"
+              />
+              <p className="text-dark-600 text-xs mt-2">This reason will be recorded and visible in the ticket details.</p>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex items-center gap-3 p-5 border-t border-dark-700/50">
+              <button
+                onClick={handleResolveCancel}
+                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleResolveConfirm}
+                disabled={!resolvingReason.trim()}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Confirm Resolution
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
