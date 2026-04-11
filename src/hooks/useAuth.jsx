@@ -1,11 +1,12 @@
-import { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo } from 'react';
 
 const AuthContext = createContext(null);
 
 const ROLES = {
   admin: { label: 'Admin', level: 3 },
-  agent: { label: 'Agent', level: 2 },
-  viewer: { label: 'Viewer', level: 1 },
+  supervisor: { label: 'Supervisor', level: 2 },
+  agent: { label: 'Agent', level: 1 },
+  viewer: { label: 'Viewer', level: 0 },
 };
 
 // Session idle timeout in milliseconds (default 30 minutes)
@@ -110,12 +111,37 @@ export function AuthProvider({ children }) {
   const hasPermission = useCallback(
     (requiredRole) => {
       if (!user) return false;
-      const userLevel = ROLES[user.role]?.level || 0;
+      const userLevel = ROLES[user.role]?.level ?? ROLES.agent.level;
       const requiredLevel = ROLES[requiredRole]?.level || 0;
       return userLevel >= requiredLevel;
     },
     [user]
   );
+
+  /**
+   * RBAC permission helpers — computed from user role.
+   * Defaults to 'agent' level if role is unrecognized.
+   */
+  const permissions = useMemo(() => {
+    const role = user?.role || '';
+    const level = ROLES[role]?.level ?? ROLES.agent.level;
+
+    return {
+      canViewAllTickets: level >= ROLES.supervisor.level,    // Admin + Supervisor
+      canCreateTickets: level >= ROLES.agent.level,          // Everyone
+      canUpdateAnyTicket: level >= ROLES.supervisor.level,   // Admin + Supervisor
+      canDeleteTickets: level >= ROLES.supervisor.level,     // Admin + Supervisor
+      canArchiveTickets: level >= ROLES.supervisor.level,    // Admin + Supervisor
+      canBulkAction: level >= ROLES.supervisor.level,        // Admin + Supervisor
+      canManageAgents: level >= ROLES.admin.level,           // Admin only
+      canViewAnalytics: level >= ROLES.supervisor.level,     // Admin + Supervisor
+      canManageTemplates: level >= ROLES.supervisor.level,   // Admin + Supervisor
+      isAdmin: level >= ROLES.admin.level,
+      isSupervisor: level >= ROLES.supervisor.level,
+      isAgent: level === ROLES.agent.level,
+      roleLabel: ROLES[role]?.label || 'Agent',
+    };
+  }, [user]);
 
   const value = {
     user,
@@ -124,6 +150,7 @@ export function AuthProvider({ children }) {
     logout,
     getToken,
     hasPermission,
+    permissions,
     ROLES,
   };
 

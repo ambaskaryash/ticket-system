@@ -1,5 +1,10 @@
+import { useAuth } from '../hooks/useAuth';
+
 export default function BulkActionBar({ count, onMarkResolved, onAssign, onDelete, onClear, agentNames = [] }) {
-  if (count === 0) return null;
+  const { permissions } = useAuth();
+
+  // Hide entire bar for agents without bulk permissions
+  if (count === 0 || !permissions.canBulkAction) return null;
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
@@ -38,15 +43,17 @@ export default function BulkActionBar({ count, onMarkResolved, onAssign, onDelet
             </div>
           </div>
         </div>
-        <button
-          onClick={onDelete}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all cursor-pointer"
-        >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          Delete
-        </button>
+        {permissions.canDeleteTickets && (
+          <button
+            onClick={onDelete}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 bg-red-500/10 hover:bg-red-500/20 transition-all cursor-pointer"
+          >
+            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Delete
+          </button>
+        )}
         <div className="w-px h-5 bg-dark-600/50" />
         <button
           onClick={onClear}

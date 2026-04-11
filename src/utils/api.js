@@ -190,6 +190,9 @@ export async function sendEmail(payload) {
   return post({ action: 'sendEmail', ...payload });
 }
 
+export async function submitCSAT(ticketId, rating, feedback) {
+  return post({ action: 'submitCSAT', id: ticketId, rating, feedback });
+}
 /* ══════════════════════════════════════════════
    NOTES ENDPOINTS
    ══════════════════════════════════════════════ */

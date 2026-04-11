@@ -3,15 +3,19 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { useTickets } from './hooks/useTickets';
 import { useAgents } from './hooks/useAgents';
+import { useNotifications } from './hooks/useNotifications';
 import Sidebar from './components/Sidebar';
+import NotificationBell from './components/NotificationBell';
 import ToastContainer from './components/ToastContainer';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import MyTicketsPage from './pages/MyTicketsPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import AgentsPage from './pages/AgentsPage';
 import TemplatesPage from './pages/TemplatesPage';
 import SubmitPage from './pages/SubmitPage';
 import TrackTicket from './pages/TrackTicket';
+import RatePage from './pages/RatePage';
 
 /* ═══════════════════════════════════════
    PROTECTED ROUTE GUARD
@@ -32,7 +36,7 @@ function ProtectedRoute({ children }) {
    ADMIN SHELL — requires login
    ═══════════════════════════════════════ */
 function AdminShell() {
-  const { user, logout } = useAuth();
+  const { user, logout, permissions } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const {
@@ -59,6 +63,16 @@ function AdminShell() {
   } = useTickets();
 
   const { agentNames } = useAgents();
+
+  // Notification system
+  const {
+    notifications,
+    unreadCount,
+    markAsRead,
+    markAllAsRead,
+    clearAll,
+    requestPermission,
+  } = useNotifications(allTickets);
 
   return (
     <div className="min-h-screen bg-dark-950 relative">
@@ -96,8 +110,17 @@ function AdminShell() {
               Auto-syncing
             </div>
             <div className="flex items-center gap-3">
+              {/* Notification Bell */}
+              <NotificationBell
+                notifications={notifications}
+                unreadCount={unreadCount}
+                markAsRead={markAsRead}
+                markAllAsRead={markAllAsRead}
+                clearAll={clearAll}
+                requestPermission={requestPermission}
+              />
               <span className="text-dark-400 text-xs hidden sm:block">
-                {user?.name} <span className="text-dark-600">({user?.role})</span>
+                {user?.name} <span className="text-dark-600">({permissions.roleLabel})</span>
               </span>
               <button
                 onClick={logout}
@@ -135,6 +158,19 @@ function AdminShell() {
                   setPage={setPage}
                   pageSize={pageSize}
                   total={total}
+                  agentNames={agentNames}
+                />
+              }
+            />
+            <Route
+              path="/my-tickets"
+              element={
+                <MyTicketsPage
+                  tickets={allTickets}
+                  loading={loading}
+                  updateTicket={updateTicket}
+                  deleteTicket={deleteTicket}
+                  archiveTicket={archiveTicket}
                   agentNames={agentNames}
                 />
               }
@@ -183,6 +219,20 @@ function PublicTrackPage() {
   );
 }
 
+function PublicRatePage() {
+  return (
+    <div className="min-h-screen bg-dark-950 relative">
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-20 right-1/4 w-96 h-96 rounded-full bg-accent-violet/10 blur-[120px]" />
+        <div className="absolute bottom-1/4 -left-32 w-[28rem] h-[28rem] rounded-full bg-amber-500/8 blur-[120px]" />
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <RatePage />
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════════════════════════════════
    ROOT — routes public vs admin
    ═══════════════════════════════════════ */
@@ -194,6 +244,7 @@ export default function App() {
           {/* Public — anyone can access without login */}
           <Route path="/submit" element={<PublicSubmitPage />} />
           <Route path="/track" element={<PublicTrackPage />} />
+          <Route path="/rate" element={<PublicRatePage />} />
           <Route path="/" element={<Navigate to="/submit" replace />} />
           {/* Admin login — public route */}
           <Route path="/admin/login" element={<LoginPage />} />

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import {
   getTickets,
   getAgents,
@@ -210,13 +210,26 @@ export function useTickets() {
     [tickets, addToast]
   );
 
-  /* ── Computed stats (using server-side counts for accuracy with pagination) ── */
-  const stats = {
-    total,
-    open: serverStats.open,
-    inProgress: serverStats.inProgress,
-    resolved: serverStats.resolved,
-  };
+  /* ── Computed stats (synchronous for instant UI updates) ── */
+  const stats = useMemo(() => {
+    // If we have all tickets loaded locally, compute synchronously for perfect optimism
+    if (activeTickets.length > 0 && activeTickets.length >= total) {
+      const open = activeTickets.filter(t => (t.status || '').toLowerCase().trim() === 'open').length;
+      const resolved = activeTickets.filter(t => (t.status || '').toLowerCase().trim() === 'resolved').length;
+      const inProgress = activeTickets.filter(t => {
+        const s = (t.status || '').toLowerCase().replace(/[\s_-]+/g, '');
+        return s === 'inprogress';
+      }).length;
+      return { total, open, inProgress, resolved };
+    }
+    // Fallback to server stats (might lag briefly until next poll)
+    return {
+      total,
+      open: serverStats.open,
+      inProgress: serverStats.inProgress,
+      resolved: serverStats.resolved,
+    };
+  }, [activeTickets, total, serverStats]);
 
   return {
     tickets: activeTickets,
