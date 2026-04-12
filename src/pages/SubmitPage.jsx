@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { createTicket } from '../utils/api';
+import { createTicket, getPublicTestimonials } from '../utils/api';
 import ReCAPTCHA from 'react-google-recaptcha';
 import Logo from '../components/Logo';
+import Testimonial from '../components/Testimonial';
 
 const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 
@@ -26,6 +27,33 @@ export default function SubmitPage() {
   const [error, setError] = useState('');
   const [captchaVal, setCaptchaVal] = useState(null);
   const [cooldownTime, setCooldownTime] = useState(0);
+
+  // CSAT Testimonials
+  const [testimonials, setTestimonials] = useState([]);
+  const [currentTestimonialIdx, setCurrentTestimonialIdx] = useState(0);
+
+  useEffect(() => {
+    async function loadTestimonials() {
+      try {
+        const data = await getPublicTestimonials();
+        if (data && data.length > 0) {
+          setTestimonials(data);
+        }
+      } catch (err) {
+        console.error('Failed to load testimonials', err);
+      }
+    }
+    loadTestimonials();
+  }, []);
+
+  // Rotate testimonials every 8 seconds
+  useEffect(() => {
+    if (testimonials.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentTestimonialIdx((prev) => (prev + 1) % testimonials.length);
+    }, 8000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   useEffect(() => {
     const lastSubmit = localStorage.getItem('skillected_last_ticket_time');
@@ -293,11 +321,27 @@ export default function SubmitPage() {
         </button>
       </form>
 
-      <div className="text-center mt-6">
-        <Link to="/track" className="text-neutral-950/70 hover:text-neutral-950 text-sm transition-colors decoration-accent-blue/30 underline-offset-4 hover:underline">
+      <div className="flex flex-col items-center justify-center gap-3 mt-6 mb-10">
+        <Link to="/faq" className="text-neutral-600 hover:text-neutral-950 font-medium text-sm transition-colors underline-offset-4 hover:underline">
+          Browse Knowledge Base / FAQ
+        </Link>
+        <Link to="/track" className="text-neutral-600 hover:text-neutral-950 text-sm transition-colors underline-offset-4 hover:underline">
           Check existing ticket status &rarr;
         </Link>
       </div>
+
+      {/* ── Testimonial ── */}
+      {testimonials.length > 0 && (
+        <div className="relative overflow-hidden transition-opacity duration-1000">
+          <Testimonial
+            key={testimonials[currentTestimonialIdx].id || currentTestimonialIdx}
+            quote={testimonials[currentTestimonialIdx].csatFeedback || "The support team resolved my issue within hours. Very professional and efficient — I couldn't be happier with the experience!"}
+            author={testimonials[currentTestimonialIdx].name || "Anonymous"}
+            rating={testimonials[currentTestimonialIdx].csatRating || 5}
+            className="mt-4"
+          />
+        </div>
+      )}
     </div>
   );
 }

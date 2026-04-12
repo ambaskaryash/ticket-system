@@ -17,6 +17,7 @@ import TemplatesPage from './pages/TemplatesPage';
 import SubmitPage from './pages/SubmitPage';
 import TrackTicket from './pages/TrackTicket';
 import RatePage from './pages/RatePage';
+import KnowledgeBasePage from './pages/KnowledgeBasePage';
 
 /* ═══════════════════════════════════════
    PROTECTED ROUTE GUARD
@@ -227,6 +228,10 @@ function PublicRatePage() {
   );
 }
 
+function PublicKnowledgeBasePage() {
+  return <KnowledgeBasePage />;
+}
+
 /* ═══════════════════════════════════════
    ROOT — routes public vs admin
    ═══════════════════════════════════════ */
@@ -239,6 +244,7 @@ export default function App() {
           <Route path="/submit" element={<PublicSubmitPage />} />
           <Route path="/track" element={<PublicTrackPage />} />
           <Route path="/rate" element={<PublicRatePage />} />
+          <Route path="/faq" element={<PublicKnowledgeBasePage />} />
           <Route path="/" element={<Navigate to="/submit" replace />} />
           {/* Admin login — public route */}
           <Route path="/admin/login" element={<LoginPage />} />

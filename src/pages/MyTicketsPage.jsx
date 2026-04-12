@@ -6,6 +6,7 @@ import TicketCard, { TicketCardSkeleton } from '../components/TicketCard';
 import TicketModal from '../components/TicketModal';
 import EmailStudentModal from '../components/EmailStudentModal';
 import { FadeIn, FadeInStagger } from '../components/FadeIn';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { sendEmail } from '../utils/api';
 
 const STATUS_FILTERS = ['All', 'Open', 'In Progress', 'Resolved'];
@@ -49,6 +50,7 @@ export default function MyTicketsPage({ tickets, loading, updateTicket, deleteTi
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs />
       {/* Header */}
       <FadeIn>
         <header>

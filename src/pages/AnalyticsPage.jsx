@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler } from 'chart.js';
 import { Doughnut, Bar, Line } from 'react-chartjs-2';
 import { AnimatedCounter } from '../components/StatsCard';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, PointElement, LineElement, Filler);
 
@@ -140,11 +141,12 @@ export default function AnalyticsPage({ tickets }) {
   };
 
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-8 animate-fade-in">
+      <Breadcrumbs />
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-4xl font-semibold text-neutral-950 tracking-tight">Analytics</h1>
-        <p className="text-neutral-400 text-xs sm:text-sm font-medium uppercase tracking-widest mt-1">Insights into your ticket data</p>
+        <span className="block font-display text-base font-semibold text-neutral-950">Insights</span>
+        <h1 className="mt-2 font-display text-4xl font-medium tracking-tight text-neutral-950 sm:text-5xl">Analytics</h1>
       </div>
 
       {/* Key metrics */}

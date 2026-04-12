@@ -35,8 +35,8 @@ export function normalizeTicket(raw) {
     course: sanitizeText(raw.course || raw.Course || ''),
     batchTiming: sanitizeText(raw.batchTiming || raw.BatchTiming || ''),
     resolvingReason: sanitizeText(raw.resolvingReason || raw.ResolvingReason || ''),
-    csatRating: raw.csatRating || raw.CsatRating || '',
-    csatFeedback: sanitizeText(raw.csatFeedback || raw.CsatFeedback || ''),
+    csatRating: raw.csatRating || raw.CsatRating || raw['CSAT Rating'] || '',
+    csatFeedback: sanitizeText(raw.csatFeedback || raw.CsatFeedback || raw['CSAT Feedback'] || ''),
   };
 }
 

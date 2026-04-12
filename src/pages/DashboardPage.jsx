@@ -8,6 +8,8 @@ import BulkActionBar from '../components/BulkActionBar';
 import ExportDropdown from '../components/ExportDropdown';
 import ConfirmDialog from '../components/ConfirmDialog';
 import EmailStudentModal from '../components/EmailStudentModal';
+import TicketTable from '../components/TicketTable';
+import Breadcrumbs from '../components/Breadcrumbs';
 import { FadeIn, FadeInStagger } from '../components/FadeIn';
 import { sendEmail } from '../utils/api';
 
@@ -30,6 +32,7 @@ export default function DashboardPage({
   const [selectedIds, setSelectedIds] = useState(new Set());
   const [bulkConfirm, setBulkConfirm] = useState(null);
   const [emailTicket, setEmailTicket] = useState(null);
+  const [viewMode, setViewMode] = useState('cards');
   const [showBulkResolveModal, setShowBulkResolveModal] = useState(false);
   const [bulkResolvingReason, setBulkResolvingReason] = useState('');
 
@@ -78,6 +81,7 @@ export default function DashboardPage({
 
   return (
     <div className="space-y-8">
+      <Breadcrumbs />
       {/* ── Header ── */}
       <FadeIn>
         <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -185,7 +189,7 @@ export default function DashboardPage({
         </div>
       </FadeIn>
 
-      {/* ── Count ── */}
+      {/* ── Count + View Toggle ── */}
       {!loading && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-neutral-600">
@@ -207,28 +211,63 @@ export default function DashboardPage({
                 Clear Filters
               </button>
             )}
+            {/* View toggle */}
+            <div className="flex items-center rounded-full ring-1 ring-neutral-200 p-0.5">
+              <button
+                onClick={() => setViewMode('cards')}
+                className={`rounded-full p-1.5 transition cursor-pointer ${
+                  viewMode === 'cards' ? 'bg-neutral-950 text-white' : 'text-neutral-400 hover:text-neutral-600'
+                }`}
+                title="Card view"
+              >
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                </svg>
+              </button>
+              <button
+                onClick={() => setViewMode('table')}
+                className={`rounded-full p-1.5 transition cursor-pointer ${
+                  viewMode === 'table' ? 'bg-neutral-950 text-white' : 'text-neutral-400 hover:text-neutral-600'
+                }`}
+                title="Table view"
+              >
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M3 14h18M3 6h18M3 18h18" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      {/* ── Ticket Grid ── */}
-      <FadeInStagger>
-        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {loading
-            ? Array.from({ length: 6 }).map((_, i) => <TicketCardSkeleton key={i} />)
-            : filtered.map((ticket, i) => (
-                <TicketCard
-                  key={ticket.id || i}
-                  ticket={ticket}
-                  index={i}
-                  onClick={setSelectedTicket}
-                  selected={selectedIds.has(ticket.id)}
-                  onSelect={toggleSelect}
-                  onEmailClick={setEmailTicket}
-                />
-              ))}
-        </section>
-      </FadeInStagger>
+      {/* ── Ticket Grid / Table ── */}
+      {viewMode === 'table' ? (
+        <TicketTable
+          tickets={filtered}
+          onTicketClick={setSelectedTicket}
+          selectedIds={selectedIds}
+          onSelect={toggleSelect}
+          onEmailClick={setEmailTicket}
+        />
+      ) : (
+        <FadeInStagger>
+          <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {loading
+              ? Array.from({ length: 6 }).map((_, i) => <TicketCardSkeleton key={i} />)
+              : filtered.map((ticket, i) => (
+                  <TicketCard
+                    key={ticket.id || i}
+                    ticket={ticket}
+                    index={i}
+                    onClick={setSelectedTicket}
+                    selected={selectedIds.has(ticket.id)}
+                    onSelect={toggleSelect}
+                    onEmailClick={setEmailTicket}
+                  />
+                ))}
+          </section>
+        </FadeInStagger>
+      )}
 
       {/* ── Pagination ── */}
       {!loading && total > pageSize && (

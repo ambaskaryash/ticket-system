@@ -4,6 +4,7 @@ import { getSLAStatus } from '../utils/sla';
 import { getNotes, addNote } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import ConfirmDialog from './ConfirmDialog';
+import SLAProgressBar from './SLAProgressBar';
 
 const XIcon = () => (
   <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -237,15 +238,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {sla.status !== 'resolved' && sla.status !== 'unknown' && (
-                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                  sla.status === 'breach' ? 'bg-red-100 text-red-700 animate-pulse-soft' :
-                  sla.status === 'warning' ? 'bg-amber-100 text-amber-700' :
-                  'bg-emerald-100 text-emerald-700'
-                }`}>
-                  {sla.label}
-                </span>
-              )}
+              <SLAProgressBar sla={sla} compact />
               <button onClick={handleClose} className="rounded-full p-2 text-neutral-400 hover:text-neutral-950 hover:bg-neutral-950/5 transition cursor-pointer">
                 <XIcon />
               </button>
