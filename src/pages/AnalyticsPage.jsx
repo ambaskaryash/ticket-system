@@ -11,18 +11,22 @@ const chartOptions = {
   plugins: {
     legend: {
       position: 'bottom',
-      labels: { color: '#94a3b8', font: { size: 11, family: 'Inter' }, padding: 16, usePointStyle: true, pointStyleWidth: 10 },
+    labels: { color: '#64748b', font: { size: 10, weight: 'bold', family: 'Inter' }, padding: 16, usePointStyle: true, pointStyleWidth: 8 },
     },
     tooltip: {
-      backgroundColor: '#1e293b',
-      titleColor: '#e2e8f0',
-      bodyColor: '#cbd5e1',
-      borderColor: 'rgba(148,163,184,0.15)',
+      backgroundColor: '#ffffff',
+      titleColor: '#111827',
+      bodyColor: '#4b5563',
+      borderColor: '#f1f5f9',
       borderWidth: 1,
-      cornerRadius: 8,
-      padding: 10,
-      titleFont: { family: 'Inter', weight: 'bold' },
-      bodyFont: { family: 'Inter' },
+      cornerRadius: 12,
+      padding: 12,
+      titleFont: { family: 'Inter', weight: 'bold', size: 13 },
+      bodyFont: { family: 'Inter', size: 12 },
+      displayColors: true,
+      boxPadding: 6,
+      shadowBlur: 10,
+      shadowColor: 'rgba(0,0,0,0.1)',
     },
   },
 };
@@ -86,8 +90,10 @@ export default function AnalyticsPage({ tickets }) {
     datasets: [{
       data: Object.values(data.byStatus),
       backgroundColor: ['#3b82f6', '#f59e0b', '#10b981'],
-      borderWidth: 0,
-      hoverOffset: 8,
+      hoverBackgroundColor: ['#2563eb', '#d97706', '#059669'],
+      borderWidth: 4,
+      borderColor: '#ffffff',
+      hoverOffset: 12,
     }],
   };
 
@@ -96,9 +102,10 @@ export default function AnalyticsPage({ tickets }) {
     datasets: [{
       label: 'Tickets',
       data: Object.values(data.byPriority),
-      backgroundColor: ['#06b6d4', '#f59e0b', '#ef4444', '#dc2626'],
-      borderRadius: 8,
+      backgroundColor: ['#94a3b8', '#f59e0b', '#ef4444', '#dc2626'],
+      borderRadius: 12,
       borderSkipped: false,
+      maxBarThickness: 40,
     }],
   };
 
@@ -108,9 +115,10 @@ export default function AnalyticsPage({ tickets }) {
     datasets: [{
       label: 'Tickets',
       data: agentLabels.map((a) => data.byAgent[a]),
-      backgroundColor: '#6366f1',
-      borderRadius: 8,
+      backgroundColor: '#4f46e5',
+      borderRadius: 12,
       borderSkipped: false,
+      maxBarThickness: 30,
     }],
   };
 
@@ -119,12 +127,15 @@ export default function AnalyticsPage({ tickets }) {
     datasets: [{
       label: 'Tickets Created',
       data: data.byDate.map((d) => d.count),
-      borderColor: '#3b82f6',
-      backgroundColor: 'rgba(59,130,246,0.1)',
+      borderColor: '#2563eb',
+      backgroundColor: 'rgba(37,99,235,0.05)',
       fill: true,
       tension: 0.4,
-      pointRadius: 4,
-      pointBackgroundColor: '#3b82f6',
+      pointRadius: 5,
+      pointHoverRadius: 8,
+      pointBackgroundColor: '#ffffff',
+      pointBorderColor: '#2563eb',
+      pointBorderWidth: 2,
     }],
   };
 
@@ -132,23 +143,23 @@ export default function AnalyticsPage({ tickets }) {
     <div className="space-y-6 animate-fade-in">
       {/* Header */}
       <div>
-        <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Analytics</h1>
-        <p className="text-dark-500 text-sm">Insights into your ticket data</p>
+        <h1 className="text-2xl sm:text-4xl font-semibold text-neutral-950 tracking-tight">Analytics</h1>
+        <p className="text-neutral-400 text-xs sm:text-sm font-medium uppercase tracking-widest mt-1">Insights into your ticket data</p>
       </div>
 
       {/* Key metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard label="Total Tickets" value={tickets.length} icon="📋" color="indigo" />
         <MetricCard label="Open Rate" value={`${tickets.length ? Math.round((data.byStatus.Open / tickets.length) * 100) : 0}%`} icon="📊" color="blue" />
-        <MetricCard label="Avg Resolution" value={`${Math.round(data.avgResHours)}h`} icon="⏱" color="green" />
-        <MetricCard label="Resolved" value={data.resolvedCount} icon="✅" color="emerald" />
+        <MetricCard label="Resolved Rate" value={`${tickets.length ? Math.round((data.resolvedCount / tickets.length) * 100) : 0}%`} icon="📈" color="green" />
+        <MetricCard label="Avg Resolution" value={`${Math.round(data.avgResHours)}h`} icon="⏱" color="emerald" />
       </div>
 
       {/* Charts grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <ChartPanel title="Tickets by Status">
           <div className="h-64 flex items-center justify-center">
-            <Doughnut data={statusChart} options={{ ...chartOptions, cutout: '65%' }} />
+            <Doughnut data={statusChart} options={{ ...chartOptions, cutout: '72%' }} />
           </div>
         </ChartPanel>
 
@@ -157,8 +168,8 @@ export default function AnalyticsPage({ tickets }) {
             <Bar data={priorityChart} options={{
               ...chartOptions,
               scales: {
-                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11 } } },
-                y: { grid: { color: 'rgba(148,163,184,0.08)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } } },
+                y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { size: 10 } }, border: { dash: [4, 4] } },
               },
             }} />
           </div>
@@ -170,20 +181,20 @@ export default function AnalyticsPage({ tickets }) {
               ...chartOptions,
               indexAxis: 'y',
               scales: {
-                x: { grid: { color: 'rgba(148,163,184,0.08)' }, ticks: { color: '#64748b', font: { size: 11 } } },
-                y: { grid: { display: false }, ticks: { color: '#94a3b8', font: { size: 11 } } },
+                x: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { size: 10 } }, border: { dash: [4, 4] } },
+                y: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10, weight: 'bold' } } },
               },
             }} />
           </div>
         </ChartPanel>
 
-        <ChartPanel title="Tickets Over Time (Last 14 days)">
+        <ChartPanel title="Tickets Over Time">
           <div className="h-64">
             <Line data={trendChart} options={{
               ...chartOptions,
               scales: {
-                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 10 } } },
-                y: { grid: { color: 'rgba(148,163,184,0.08)' }, ticks: { color: '#64748b', font: { size: 11 } }, beginAtZero: true },
+                x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 9, weight: 'bold' } } },
+                y: { grid: { color: '#f1f5f9' }, ticks: { color: '#64748b', font: { size: 10 } }, beginAtZero: true, border: { dash: [4, 4] } },
               },
             }} />
           </div>
@@ -195,8 +206,8 @@ export default function AnalyticsPage({ tickets }) {
 
 function ChartPanel({ title, children }) {
   return (
-    <div className="glass-panel p-6 border-t-2 border-t-dark-700/50 hover:border-t-accent-blue/50 transition-colors">
-      <h3 className="text-white text-sm font-semibold tracking-wide mb-6">{title}</h3>
+    <div className="bg-white p-6 rounded-2xl border border-neutral-200 shadow-sm hover:shadow-lg transition-all duration-300">
+      <h3 className="text-neutral-950 text-xs font-semibold tracking-widest uppercase mb-6">{title}</h3>
       {children}
     </div>
   );
@@ -204,19 +215,26 @@ function ChartPanel({ title, children }) {
 
 function MetricCard({ label, value, icon, color }) {
   const colors = {
-    indigo: 'border-l-indigo-500 shadow-[0_0_25px_rgba(99,102,241,0.08)] group-hover:shadow-[0_8px_40px_rgba(99,102,241,0.2)]',
-    blue: 'border-l-blue-500 shadow-[0_0_25px_rgba(59,130,246,0.08)] group-hover:shadow-[0_8px_40px_rgba(59,130,246,0.2)]',
-    green: 'border-l-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.08)] group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.2)]',
-    emerald: 'border-l-emerald-500 shadow-[0_0_25px_rgba(16,185,129,0.08)] group-hover:shadow-[0_8px_40px_rgba(16,185,129,0.2)]',
+    indigo: 'border-l-indigo-500 shadow-sm group-hover:shadow-lg',
+    blue: 'border-l-blue-500 shadow-sm group-hover:shadow-lg',
+    green: 'border-l-emerald-500 shadow-sm group-hover:shadow-lg',
+    emerald: 'border-l-teal-500 shadow-sm group-hover:shadow-lg',
   };
+  const labelColors = {
+    indigo: 'text-indigo-600/80',
+    blue: 'text-blue-600/80',
+    green: 'text-emerald-600/80',
+    emerald: 'text-teal-600/80',
+  };
+
   return (
-    <div className={`group relative overflow-hidden bg-dark-900/60 backdrop-blur-xl rounded-2xl border border-dark-700/40 border-l-[4px] p-5 cursor-default transition-all duration-400 transform hover:-translate-y-1 ${colors[color] || colors.indigo}`}>
-      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+    <div className={`group relative overflow-hidden bg-white rounded-2xl border border-neutral-200 border-l-[4px] p-5 cursor-default transition-all duration-400 transform hover:-translate-y-1 ${colors[color] || colors.indigo}`}>
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
       <div className="flex items-center justify-between mb-2 relative z-10">
-        <span className="text-dark-400 group-hover:text-dark-300 text-xs font-bold uppercase tracking-widest transition-colors">{label}</span>
-        <span className="text-xl transition-transform duration-300 group-hover:scale-110 drop-shadow-md">{icon}</span>
+        <span className={`text-[10px] font-semibold uppercase tracking-widest transition-colors ${labelColors[color] || 'text-neutral-400'}`}>{label}</span>
+        <span className="text-xl transition-transform duration-300 group-hover:scale-110 drop-shadow-sm">{icon}</span>
       </div>
-      <div className="text-3xl font-black text-white tracking-tight relative z-10 drop-shadow-md">
+      <div className="text-3xl font-semibold text-neutral-950 tracking-tight relative z-10">
         {typeof value === 'number' ? <AnimatedCounter value={value} /> : value}
       </div>
     </div>

@@ -27,7 +27,7 @@ export default class ErrorBoundary extends Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-dark-950 flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen bg-white flex items-center justify-center p-4 relative overflow-hidden">
           {/* Background blobs */}
           <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
             <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-red-500/8 blur-[120px]" />
@@ -54,13 +54,13 @@ export default class ErrorBoundary extends Component {
 
             {/* Title */}
             <h1 className="text-white text-2xl font-bold mb-2">Something Went Wrong</h1>
-            <p className="text-dark-400 text-sm mb-6">
+            <p className="text-neutral-400 text-sm mb-6">
               An unexpected error occurred. This has been logged automatically.
             </p>
 
             {/* Error detail (dev only) */}
             {import.meta.env.DEV && this.state.error && (
-              <div className="glass-panel p-4 mb-6 text-left">
+              <div className="rounded-2xl ring-1 ring-neutral-950/5 bg-white p-4 mb-6 text-left">
                 <p className="text-red-400 text-xs font-mono break-all">
                   {this.state.error.message || String(this.state.error)}
                 </p>
@@ -77,7 +77,7 @@ export default class ErrorBoundary extends Component {
               </button>
               <button
                 onClick={() => window.location.reload()}
-                className="px-6 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
+                className="px-6 py-2.5 rounded-xl text-sm font-medium text-neutral-600 hover:text-neutral-950 bg-neutral-100 hover:bg-neutral-200 border border-neutral-200 transition-all cursor-pointer"
               >
                 Reload Page
               </button>

@@ -61,185 +61,201 @@ export default function CreateTicketModal({ isOpen, onClose, onCreate, agentName
 
   if (!isOpen) return null;
 
+  const inputClasses = "block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6";
+
   return (
     <div
       ref={overlayRef}
       onClick={(e) => e.target === overlayRef.current && handleClose()}
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-950/50 ${
         isClosing ? 'animate-overlay-in [animation-direction:reverse]' : 'animate-overlay-in'
       }`}
     >
       <form
         onSubmit={handleSubmit}
-        className={`w-full max-w-lg bg-dark-900 border border-dark-700/50 rounded-2xl shadow-2xl overflow-hidden ${
+        className={`w-full max-w-lg rounded-3xl bg-white ring-1 ring-neutral-950/5 shadow-xl overflow-hidden ${
           isClosing ? 'animate-slide-out-right' : 'animate-fade-in'
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-dark-700/50">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 flex items-center justify-center">
-              <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-              </svg>
-            </div>
-            <h2 className="text-white text-lg font-bold">New Ticket</h2>
+        <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-950/5">
+          <div>
+            <h2 className="font-display text-lg font-semibold text-neutral-950">New Ticket</h2>
+            <p className="text-sm text-neutral-600 mt-0.5">Create a new support request</p>
           </div>
           <button
             type="button"
             onClick={handleClose}
-            className="p-2 rounded-lg hover:bg-dark-700/60 text-dark-400 hover:text-white transition-colors cursor-pointer"
+            className="rounded-full p-2 text-neutral-400 hover:text-neutral-950 hover:bg-neutral-950/5 transition cursor-pointer"
           >
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto">
+        <div className="px-6 py-6 space-y-5 max-h-[70vh] overflow-y-auto">
           {/* Name + Email row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">
-                Name <span className="text-red-400">*</span>
+              <label className="block text-sm/6 font-medium text-neutral-950">
+                Name <span className="text-red-600">*</span>
               </label>
-              <input
-                ref={firstInputRef}
-                type="text"
-                value={form.name}
-                onChange={set('name')}
-                placeholder="John Doe"
-                required
-                className="glass-input w-full px-3 py-2.5 text-sm"
-              />
+              <div className="mt-2">
+                <input
+                  ref={firstInputRef}
+                  type="text"
+                  value={form.name}
+                  onChange={set('name')}
+                  placeholder="Full name"
+                  required
+                  className={inputClasses}
+                />
+              </div>
             </div>
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Email</label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={set('email')}
-                placeholder="john@example.com"
-                className="glass-input w-full px-3 py-2.5 text-sm"
-              />
+              <label className="block text-sm/6 font-medium text-neutral-950">Email</label>
+              <div className="mt-2">
+                <input
+                  type="email"
+                  value={form.email}
+                  onChange={set('email')}
+                  placeholder="email@example.com"
+                  className={inputClasses}
+                />
+              </div>
             </div>
-          
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone</label>
-              <input
-                type="text"
-                value={form.phone}
-                onChange={set('phone')}
-                placeholder="+1 555-0000"
-                className="glass-input w-full px-3 py-2.5 text-sm"
-              />
+              <label className="block text-sm/6 font-medium text-neutral-950">Phone</label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={form.phone}
+                  onChange={set('phone')}
+                  placeholder="+91 00000 00000"
+                  className={inputClasses}
+                />
+              </div>
             </div>
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
-              <input
-                type="text"
-                value={form.course}
-                onChange={set('course')}
-                placeholder="e.g. React Prep"
-                className="glass-input w-full px-3 py-2.5 text-sm"
-              />
+              <label className="block text-sm/6 font-medium text-neutral-950">Course</label>
+              <div className="mt-2">
+                <input
+                  type="text"
+                  value={form.course}
+                  onChange={set('course')}
+                  placeholder="Project name"
+                  className={inputClasses}
+                />
+              </div>
             </div>
           </div>
 
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
-            <input
-              type="text"
-              value={form.batchTiming}
-              onChange={set('batchTiming')}
-              placeholder="e.g. 6PM - 8PM"
-              className="glass-input w-full px-3 py-2.5 text-sm"
-            />
-          </div>
+            <label className="block text-sm/6 font-medium text-neutral-950">Batch / Timeline</label>
+            <div className="mt-2">
+              <input
+                type="text"
+                value={form.batchTiming}
+                onChange={set('batchTiming')}
+                placeholder="e.g. Morning Batch"
+                className={inputClasses}
+              />
+            </div>
           </div>
 
           {/* Subject */}
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">
-              Subject <span className="text-red-400">*</span>
+            <label className="block text-sm/6 font-medium text-neutral-950">
+              Subject <span className="text-red-600">*</span>
             </label>
-            <input
-              type="text"
-              value={form.subject}
-              onChange={set('subject')}
-              placeholder="Brief description of the issue"
-              required
-              className="glass-input w-full px-3 py-2.5 text-sm"
-            />
+            <div className="mt-2">
+              <input
+                type="text"
+                value={form.subject}
+                onChange={set('subject')}
+                placeholder="Brief description of the issue"
+                required
+                className={inputClasses}
+              />
+            </div>
           </div>
 
           {/* Description */}
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Description</label>
-            <textarea
-              value={form.description}
-              onChange={set('description')}
-              placeholder="Detailed description of the issue…"
-              rows={4}
-              className="glass-input w-full px-3 py-2.5 text-sm resize-none"
-            />
+            <label className="block text-sm/6 font-medium text-neutral-950">Description</label>
+            <div className="mt-2">
+              <textarea
+                value={form.description}
+                onChange={set('description')}
+                placeholder="Provide context for the support request…"
+                rows={4}
+                className={`${inputClasses} resize-none`}
+              />
+            </div>
           </div>
 
           {/* Priority + Agent row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Priority</label>
-              <select
-                value={form.priority}
-                onChange={set('priority')}
-                className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none"
-              >
-                {PRIORITIES.map((p) => (
-                  <option key={p} value={p} className="bg-dark-900">{p}</option>
-                ))}
-              </select>
+              <label className="block text-sm/6 font-medium text-neutral-950">Priority</label>
+              <div className="mt-2">
+                <select
+                  value={form.priority}
+                  onChange={set('priority')}
+                  className={`${inputClasses} cursor-pointer`}
+                >
+                  {PRIORITIES.map((p) => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              </div>
             </div>
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Assign Agent</label>
-              <select
-                value={form.agent}
-                onChange={set('agent')}
-                className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none"
-              >
-                <option value="" className="bg-dark-900">Unassigned</option>
-                {agentNames.map((a) => (
-                  <option key={a} value={a} className="bg-dark-900">{a}</option>
-                ))}
-              </select>
+              <label className="block text-sm/6 font-medium text-neutral-950">Assign Agent</label>
+              <div className="mt-2">
+                <select
+                  value={form.agent}
+                  onChange={set('agent')}
+                  className={`${inputClasses} cursor-pointer`}
+                >
+                  <option value="">Unassigned</option>
+                  {agentNames.map((a) => (
+                    <option key={a} value={a}>{a}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-dark-700/50 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
-          >
-            Cancel
-          </button>
+        <div className="px-6 py-5 border-t border-neutral-950/5 flex items-center gap-3 sm:flex-row-reverse">
           <button
             type="submit"
             disabled={!form.name.trim() || !form.subject.trim() || saving}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+            className="flex-1 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white bg-neutral-950 shadow-xs hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
           >
             {saving ? (
-              <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              <span className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
             )}
             {saving ? 'Creating…' : 'Create Ticket'}
+          </button>
+          <button
+            type="button"
+            onClick={handleClose}
+            className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-neutral-950 bg-white ring-1 ring-neutral-300 ring-inset shadow-xs hover:bg-neutral-50 transition cursor-pointer"
+          >
+            Cancel
           </button>
         </div>
       </form>

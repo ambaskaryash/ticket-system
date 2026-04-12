@@ -72,24 +72,24 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
       }`}
     >
       <div
-        className={`w-full max-w-lg bg-dark-900 border border-dark-700/50 rounded-2xl shadow-2xl overflow-hidden ${
+        className={`w-full max-w-lg bg-neutral-900 border border-neutral-700/50 rounded-2xl shadow-2xl overflow-hidden ${
           isClosing ? 'animate-zoom-in [animation-direction:reverse]' : 'animate-zoom-in'
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-5 border-b border-dark-700/50">
+        <div className="flex items-center justify-between p-5 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-accent-blue/15 flex items-center justify-center">
-              <svg className="w-5 h-5 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <div className="w-10 h-10 rounded-xl bg-neutral-950/15 flex items-center justify-center">
+              <svg className="w-5 h-5 text-neutral-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
             <div>
               <h3 className="text-white font-semibold">Email Reporter</h3>
-              <p className="text-dark-500 text-xs text-left">Reply to Ticket #{ticket.id}</p>
+              <p className="text-neutral-500 text-xs text-left">Reply to Ticket #{ticket.id}</p>
             </div>
           </div>
-          <button onClick={handleClose} className="p-2 rounded-lg hover:bg-dark-700/60 text-dark-400 hover:text-white transition-colors cursor-pointer">
+          <button onClick={handleClose} className="p-2 rounded-lg hover:bg-neutral-700/60 text-neutral-400 hover:text-white transition-colors cursor-pointer">
             <XIcon />
           </button>
         </div>
@@ -97,23 +97,23 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
         {/* Content */}
         <div className="p-5 space-y-4 text-left">
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0">To</label>
-            <div className="glass-panel px-3 py-2 text-sm text-dark-300 bg-dark-800/50">
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0">To</label>
+            <div className="rounded-2xl ring-1 ring-neutral-950/5 bg-white px-3 py-2 text-sm text-neutral-300 bg-neutral-800/50">
               {ticket.name} &lt;{ticket.email}&gt;
             </div>
           </div>
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0">Subject</label>
-            <div className="glass-panel px-3 py-2 text-sm text-dark-300 bg-dark-800/50 truncate">
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5 pt-0">Subject</label>
+            <div className="rounded-2xl ring-1 ring-neutral-950/5 bg-white px-3 py-2 text-sm text-neutral-300 bg-neutral-800/50 truncate">
               [Ticket #{ticket.id}] Re: {ticket.subject}
             </div>
           </div>
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider mb-1.5 pt-0 flex justify-between items-center">
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider mb-1.5 pt-0 flex justify-between items-center">
               <span>Canned Response</span>
             </label>
             <select
-              className="glass-input w-full px-3 py-2 text-sm text-dark-300 bg-dark-900 border-dark-600/30"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
               disabled={templates.length === 0}
               onChange={(e) => {
                 const tmpl = templates.find(t => t.id === e.target.value);
@@ -129,10 +129,10 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
               ))}
             </select>
             {templates.length === 0 && (
-               <p className="text-[10px] text-dark-500 mt-1">If you want to use templates, please create one in the Templates page first.</p>
+               <p className="text-[10px] text-neutral-500 mt-1">If you want to use templates, please create one in the Templates page first.</p>
             )}
           </div>
-          <div className="!text-dark-900 bg-white rounded-xl overflow-hidden mt-2 border border-dark-600/30">
+          <div className="text-neutral-950 bg-white rounded-xl overflow-hidden mt-2 border border-neutral-600/30">
             <ReactQuill
               theme="snow"
               value={message}
@@ -151,10 +151,10 @@ export default function EmailStudentModal({ ticket, onClose, onSend }) {
         </div>
 
         {/* Footer */}
-        <div className="p-5 border-t border-dark-700/50 flex items-center justify-end gap-3">
+        <div className="p-5 border-t border-neutral-700/50 flex items-center justify-end gap-3">
           <button
             onClick={handleClose}
-            className="px-4 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
+            className="px-4 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:text-white bg-neutral-800 hover:bg-neutral-700 border border-neutral-600/30 transition-all cursor-pointer"
           >
             Cancel
           </button>

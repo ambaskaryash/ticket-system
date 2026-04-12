@@ -103,13 +103,13 @@ export default function SubmitPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-white text-2xl font-bold mb-2">Ticket Submitted!</h2>
-          <p className="text-dark-400 text-sm mb-4">
+          <h2 className="text-neutral-950 text-2xl font-bold mb-2">Ticket Submitted!</h2>
+          <p className="text-neutral-400 text-sm mb-4">
             Your support ticket has been created. We'll get back to you as soon as possible.
           </p>
-          <div className="glass-panel inline-block px-6 py-3 mb-6">
-            <span className="text-dark-500 text-xs uppercase tracking-wider block">Ticket ID</span>
-            <span className="text-accent-blue text-lg font-bold">{ticketId}</span>
+          <div className="rounded-2xl ring-1 ring-neutral-950/5 bg-white inline-block px-6 py-3 mb-6">
+            <span className="text-neutral-500 text-xs uppercase tracking-wider block">Ticket ID</span>
+            <span className="text-neutral-950 text-lg font-bold">{ticketId}</span>
           </div>
           <div>
             <button
@@ -117,7 +117,7 @@ export default function SubmitPage() {
                 setSubmitted(false);
                 setForm({ name: '', email: '', subject: '', description: '', priority: 'Medium', attachment: null, attachmentName: '', attachmentMimeType: '', phone: '', course: '', batchTiming: '' });
               }}
-              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-xl text-sm font-semibold text-neutral-950 bg-neutral-950 hover:bg-neutral-800 transition-all cursor-pointer"
             >
               Submit Another Ticket
             </button>
@@ -130,33 +130,33 @@ export default function SubmitPage() {
   return (
     <div className="max-w-lg mx-auto animate-fade-in">
       {/* Top Navigation */}
-      <div className="flex justify-end gap-3 mb-6">
+      <div className="flex justify-end gap-3 mb-8">
         <Link 
           to="/track" 
-          className="px-4 py-1.5 rounded-lg text-xs font-medium text-dark-300 hover:text-white bg-dark-800/40 hover:bg-dark-700/60 transition-colors backdrop-blur-sm border border-dark-700/50"
+          className="rounded-full px-4 py-1.5 text-sm font-semibold text-neutral-600 ring-1 ring-neutral-300 ring-inset hover:bg-neutral-50 transition"
         >
           Track Ticket
         </Link>
         <Link 
           to="/admin/login" 
-          className="px-4 py-1.5 rounded-lg text-xs font-medium text-accent-blue/80 hover:text-accent-blue bg-accent-blue/10 hover:bg-accent-blue/20 transition-colors backdrop-blur-sm border border-accent-blue/20"
+          className="rounded-full px-4 py-1.5 text-sm font-semibold text-neutral-600 ring-1 ring-neutral-300 ring-inset hover:bg-neutral-50 transition"
         >
           Admin Login
         </Link>
       </div>
 
       {/* Header */}
-      <div className="text-center mb-8">
-        <Logo className="w-14 h-14 mx-auto mb-4" glow />
-        <h1 className="text-white text-2xl font-bold tracking-tight">Submit a Ticket</h1>
-        <p className="text-dark-500 text-sm mt-1">Need help? Fill out the form below and our team will assist you.</p>
+      <div className="text-center mb-10">
+        <Logo className="w-12 h-12 mx-auto mb-6" />
+        <h1 className="font-display text-3xl font-medium tracking-tight text-neutral-950 sm:text-4xl">Submit a Ticket</h1>
+        <p className="mt-2 text-lg text-neutral-600">Need help? Fill out the form below and our team will assist you.</p>
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="glass-panel p-6 space-y-5">
+      <form onSubmit={handleSubmit} className="rounded-2xl ring-1 ring-neutral-950/5 bg-white p-6 space-y-5">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">
               Your Name <span className="text-red-400">*</span>
             </label>
             <input
@@ -164,53 +164,53 @@ export default function SubmitPage() {
               onChange={set('name')}
               placeholder="John Doe"
               required
-              className="glass-input w-full px-3 py-2.5 text-sm"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
             />
           </div>
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Email</label>
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Email</label>
             <input
               value={form.email}
               onChange={set('email')}
               placeholder="john@example.com"
               type="email"
-              className="glass-input w-full px-3 py-2.5 text-sm"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone Number</label>
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone Number</label>
             <input
               value={form.phone}
               onChange={set('phone')}
               placeholder="+1 234 567 8900"
-              className="glass-input w-full px-3 py-2.5 text-sm"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
             />
           </div>
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
             <input
               value={form.course}
               onChange={set('course')}
               placeholder="e.g., UI/UX Design"
-              className="glass-input w-full px-3 py-2.5 text-sm"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
             />
           </div>
           <div>
-            <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
+            <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
             <input
               value={form.batchTiming}
               onChange={set('batchTiming')}
               placeholder="e.g., Mon-Wed 6PM"
-              className="glass-input w-full px-3 py-2.5 text-sm"
+              className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
             />
           </div>
         </div>
 
         <div>
-          <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">
+          <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">
             Subject <span className="text-red-400">*</span>
           </label>
           <input
@@ -218,32 +218,32 @@ export default function SubmitPage() {
             onChange={set('subject')}
             placeholder="Brief description of your issue"
             required
-            className="glass-input w-full px-3 py-2.5 text-sm"
+            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 "
           />
         </div>
 
         <div>
-          <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Description</label>
+          <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Description</label>
           <textarea
             value={form.description}
             onChange={set('description')}
             placeholder="Please describe your issue in detail…"
             rows={5}
-            className="glass-input w-full px-3 py-2.5 text-sm resize-none"
+            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 resize-none"
           />
         </div>
 
         <div>
-          <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Attachment (Optional)</label>
+          <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Attachment (Optional)</label>
           <input
             type="file"
             onChange={handleFileChange}
-            className="glass-input w-full px-3 py-2.5 text-sm file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-dark-600 file:text-dark-200 hover:file:bg-dark-500 cursor-pointer"
+            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-neutral-100 file:text-neutral-700 hover:file:bg-neutral-200 cursor-pointer"
           />
         </div>
 
         <div>
-          <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Priority</label>
+          <label className="text-neutral-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Priority</label>
           <div className="flex gap-2">
             {PRIORITIES.map((p) => (
               <button
@@ -256,7 +256,7 @@ export default function SubmitPage() {
                     : p === 'Medium' ? 'bg-amber-500/20 text-amber-400 ring-1 ring-amber-500/30'
                     : p === 'High' ? 'bg-red-500/20 text-red-400 ring-1 ring-red-500/30'
                     : 'bg-red-600/20 text-red-300 ring-1 ring-red-600/30'
-                    : 'text-dark-400 hover:text-dark-200 bg-dark-800/40 hover:bg-dark-700/40'
+                    : 'text-neutral-400 hover:text-neutral-200 bg-neutral-100 hover:bg-neutral-700/40'
                 }`}
               >
                 {p}
@@ -280,7 +280,7 @@ export default function SubmitPage() {
         <button
           type="submit"
           disabled={!form.name.trim() || !form.subject.trim() || loading || cooldownTime > 0}
-          className="w-full py-3 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-full text-sm font-semibold text-white bg-neutral-950 hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           {loading ? (
             <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -294,7 +294,7 @@ export default function SubmitPage() {
       </form>
 
       <div className="text-center mt-6">
-        <Link to="/track" className="text-accent-blue/70 hover:text-accent-blue text-sm transition-colors decoration-accent-blue/30 underline-offset-4 hover:underline">
+        <Link to="/track" className="text-neutral-950/70 hover:text-neutral-950 text-sm transition-colors decoration-accent-blue/30 underline-offset-4 hover:underline">
           Check existing ticket status &rarr;
         </Link>
       </div>

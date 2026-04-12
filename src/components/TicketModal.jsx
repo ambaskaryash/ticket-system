@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import ConfirmDialog from './ConfirmDialog';
 
 const XIcon = () => (
-  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+  <svg className="size-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
   </svg>
 );
@@ -14,9 +14,10 @@ const XIcon = () => (
 const STATUSES = ['Open', 'In Progress', 'Resolved'];
 const PRIORITIES = ['Low', 'Medium', 'High', 'Critical'];
 
+const inputClasses = "block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6";
+
 /**
- * TicketModal — uses normalized ticket fields.
- * Notes are also pre-normalized from the API layer.
+ * TicketModal — Studio-styled drawer panel
  */
 export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArchive, agentNames = [] }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -53,7 +54,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
     }
   }, [ticket]);
 
-  /* ── Fetch notes (returned pre-normalized from API) ── */
+  /* ── Fetch notes ── */
   useEffect(() => {
     if (ticket && activeTab === 'notes') {
       setNotesLoading(true);
@@ -104,7 +105,6 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
         Course: form.course,
         BatchTiming: form.batchTiming,
       };
-      // Include resolving reason if status is being changed to Resolved
       if (form.resolvingReason) {
         payload.resolvingReason = form.resolvingReason;
       }
@@ -153,7 +153,7 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
   const handleArchive = () => {
     setConfirmAction({
       title: 'Archive Ticket',
-      message: 'This ticket will be archived and hidden from the main view. You can view archived tickets later.',
+      message: 'This ticket will be archived and hidden from the main view.',
       confirmLabel: 'Archive',
       color: 'amber',
       action: async () => {
@@ -164,13 +164,12 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
     });
   };
 
-  /* ── Status change handler — intercept "Resolved" to ask for reason ── */
+  /* ── Status change handler ── */
   const handleStatusChange = (e) => {
     const newStatus = e.target.value;
     if (newStatus === 'Resolved' && (ticket.status || 'Open') !== 'Resolved') {
       setResolvingReason('');
       setShowResolveModal(true);
-      // Temporarily set form status so the dropdown reflects "Resolved"
       setForm((prev) => ({ ...prev, status: 'Resolved' }));
     } else {
       setForm((prev) => ({ ...prev, status: newStatus, resolvingReason: '' }));
@@ -184,7 +183,6 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
   };
 
   const handleResolveCancel = () => {
-    // Revert status back to original
     setForm((prev) => ({ ...prev, status: ticket.status || 'Open' }));
     setResolvingReason('');
     setShowResolveModal(false);
@@ -216,64 +214,63 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
       <div
         ref={overlayRef}
         onClick={(e) => e.target === overlayRef.current && handleClose()}
-        className={`fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm ${
+        className={`fixed inset-0 z-50 flex justify-end bg-neutral-950/50 ${
           isClosing ? 'animate-overlay-in [animation-direction:reverse]' : 'animate-overlay-in'
         }`}
       >
         <div
-          className={`relative w-full max-w-xl h-full flex flex-col bg-dark-900 border-l border-dark-700/50 shadow-2xl ${
+          className={`relative w-full max-w-xl h-full flex flex-col bg-white border-l border-neutral-950/10 shadow-xl ${
             isClosing ? 'animate-slide-out-right' : 'animate-slide-in-right'
           }`}
         >
           {/* ─ Header ─ */}
-          <div className="flex items-center justify-between p-5 border-b border-dark-700/50">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-accent-indigo/15 flex items-center justify-center">
-                <svg className="w-5 h-5 text-accent-indigo" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-950/5">
+            <div className="flex items-center gap-4">
+              <div className="flex size-10 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white">
+                <svg className="size-5 text-neutral-950" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
               <div>
-                <span className="text-dark-400 text-xs font-medium">Ticket</span>
-                <p className="text-white text-sm font-semibold">#{ticket.id}</p>
+                <p className="text-xs text-neutral-400 font-medium">Ticket</p>
+                <p className="font-display text-lg font-semibold text-neutral-950 leading-none">#{ticket.id}</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              {/* SLA Badge */}
+            <div className="flex items-center gap-3">
               {sla.status !== 'resolved' && sla.status !== 'unknown' && (
-                <span className={`text-[10px] font-bold px-2 py-1 rounded-lg ${
-                  sla.status === 'breach' ? 'bg-red-500/20 text-red-400' :
-                  sla.status === 'warning' ? 'bg-amber-500/20 text-amber-400' :
-                  'bg-emerald-500/20 text-emerald-400'
+                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+                  sla.status === 'breach' ? 'bg-red-100 text-red-700 animate-pulse-soft' :
+                  sla.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+                  'bg-emerald-100 text-emerald-700'
                 }`}>
-                  ⏱ {sla.label}
+                  {sla.label}
                 </span>
               )}
-              <button onClick={handleClose} className="p-2 rounded-lg hover:bg-dark-700/60 text-dark-400 hover:text-white transition-colors cursor-pointer">
+              <button onClick={handleClose} className="rounded-full p-2 text-neutral-400 hover:text-neutral-950 hover:bg-neutral-950/5 transition cursor-pointer">
                 <XIcon />
               </button>
             </div>
           </div>
 
           {/* ─ Tabs ─ */}
-          <div className="flex border-b border-dark-700/50">
+          <div className="flex border-b border-neutral-950/5">
             {['details', 'notes'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`flex-1 py-3 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                className={`flex-1 py-3 text-sm font-semibold transition cursor-pointer border-b-2 ${
                   activeTab === tab
-                    ? 'text-accent-blue border-b-2 border-accent-blue'
-                    : 'text-dark-500 hover:text-dark-300'
+                    ? 'text-neutral-950 border-neutral-950'
+                    : 'text-neutral-400 border-transparent hover:text-neutral-600 hover:bg-neutral-50'
                 }`}
               >
-                {tab === 'details' ? '📋 Details' : `💬 Notes ${notes.length > 0 ? `(${notes.length})` : ''}`}
+                {tab === 'details' ? 'Details' : `Notes ${notes.length > 0 ? `(${notes.length})` : ''}`}
               </button>
             ))}
           </div>
 
           {/* ─ Content ─ */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-5">
+          <div className="flex-1 overflow-y-auto px-6 py-6 space-y-6">
             {activeTab === 'details' ? (
               <>
                 {/* Subject + badges */}
@@ -282,17 +279,22 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                     <input
                       value={form.subject}
                       onChange={set('subject')}
-                      className="glass-input w-full px-3 py-2 text-lg font-bold text-white mb-2"
+                      className={`${inputClasses} !text-lg font-semibold mb-3`}
                     />
                   ) : (
-                    <h2 className="text-white text-lg font-bold leading-snug mb-2">{form.subject}</h2>
+                    <h2 className="font-display text-xl font-semibold text-neutral-950 tracking-tight mb-3">{form.subject}</h2>
                   )}
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ring-1 ${sc.bg} ${sc.text} ${sc.ring}`}>
-                      <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+                    <span className="inline-flex items-center gap-x-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-600">
+                      <svg viewBox="0 0 6 6" aria-hidden="true" className={`size-1.5 ${sc.dot.replace('bg-', 'fill-')}`}>
+                        <circle r={3} cx={3} cy={3} />
+                      </svg>
                       {sc.label}
                     </span>
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold ${pc.bg} ${pc.text}`}>
+                    <span className="inline-flex items-center gap-x-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-600">
+                      <svg viewBox="0 0 6 6" aria-hidden="true" className={`size-1.5 ${pc.dot.replace('bg-', 'fill-')}`}>
+                        <circle r={3} cx={3} cy={3} />
+                      </svg>
                       {pc.label} Priority
                     </span>
                   </div>
@@ -303,62 +305,63 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Name</label>
-                        <input value={form.name} onChange={set('name')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                        <label className="block text-sm/6 font-medium text-neutral-950">Name</label>
+                        <div className="mt-2"><input value={form.name} onChange={set('name')} className={inputClasses} /></div>
                       </div>
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Email</label>
-                        <input value={form.email} onChange={set('email')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                        <label className="block text-sm/6 font-medium text-neutral-950">Email</label>
+                        <div className="mt-2"><input value={form.email} onChange={set('email')} className={inputClasses} /></div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Phone</label>
-                        <input value={form.phone} onChange={set('phone')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                        <label className="block text-sm/6 font-medium text-neutral-950">Phone</label>
+                        <div className="mt-2"><input value={form.phone} onChange={set('phone')} className={inputClasses} /></div>
                       </div>
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Course</label>
-                        <input value={form.course} onChange={set('course')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                        <label className="block text-sm/6 font-medium text-neutral-950">Course</label>
+                        <div className="mt-2"><input value={form.course} onChange={set('course')} className={inputClasses} /></div>
                       </div>
                     </div>
                     <div>
-                      <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Batch Timing</label>
-                      <input value={form.batchTiming} onChange={set('batchTiming')} className="glass-input w-full px-3 py-2.5 text-sm" />
+                      <label className="block text-sm/6 font-medium text-neutral-950">Batch Timing</label>
+                      <div className="mt-2"><input value={form.batchTiming} onChange={set('batchTiming')} className={inputClasses} /></div>
                     </div>
                     <div>
-                      <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Description</label>
-                      <textarea
-                        value={form.description}
-                        onChange={set('description')}
-                        rows={4}
-                        className="glass-input w-full px-3 py-2.5 text-sm resize-none"
-                      />
+                      <label className="block text-sm/6 font-medium text-neutral-950">Description</label>
+                      <div className="mt-2"><textarea value={form.description} onChange={set('description')} rows={4} className={`${inputClasses} resize-none`} /></div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Priority</label>
-                        <select value={form.priority} onChange={set('priority')} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
-                          {PRIORITIES.map((p) => <option key={p} value={p} className="bg-dark-900">{p}</option>)}
-                        </select>
+                        <label className="block text-sm/6 font-medium text-neutral-950">Priority</label>
+                        <div className="mt-2">
+                          <select value={form.priority} onChange={set('priority')} className={`${inputClasses} cursor-pointer`}>
+                            {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
+                          </select>
+                        </div>
                       </div>
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Status</label>
-                        <select value={form.status} onChange={handleStatusChange} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
-                          {STATUSES.map((s) => <option key={s} value={s} className="bg-dark-900">{s}</option>)}
-                        </select>
+                        <label className="block text-sm/6 font-medium text-neutral-950">Status</label>
+                        <div className="mt-2">
+                          <select value={form.status} onChange={handleStatusChange} className={`${inputClasses} cursor-pointer`}>
+                            {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </div>
                       </div>
                     </div>
                     <div>
-                      <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Assign Agent</label>
-                      <select value={form.agent} onChange={set('agent')} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
-                        <option value="" className="bg-dark-900">Unassigned</option>
-                        {agentNames.map((a) => <option key={a} value={a} className="bg-dark-900">{a}</option>)}
-                      </select>
+                      <label className="block text-sm/6 font-medium text-neutral-950">Assign Agent</label>
+                      <div className="mt-2">
+                        <select value={form.agent} onChange={set('agent')} className={`${inputClasses} cursor-pointer`}>
+                          <option value="">Unassigned</option>
+                          {agentNames.map((a) => <option key={a} value={a}>{a}</option>)}
+                        </select>
+                      </div>
                     </div>
                   </div>
                 ) : (
                   <>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+                    <div className="grid grid-cols-2 gap-x-6 gap-y-4">
                       <DetailField label="Reporter" value={form.name} />
                       <DetailField label="Email" value={form.email} />
                       <DetailField label="Phone" value={form.phone} />
@@ -370,59 +373,56 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                       </div>
                     </div>
                     <div>
-                      <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">Description</label>
-                      <div className="glass-panel p-4 text-sm text-dark-300 leading-relaxed whitespace-pre-wrap min-h-[80px]">
+                      <label className="block text-sm font-medium text-neutral-400 mb-2">Description</label>
+                      <div className="rounded-2xl bg-neutral-50 ring-1 ring-neutral-950/5 p-5 text-sm text-neutral-700 leading-relaxed whitespace-pre-wrap min-h-[80px]">
                         {form.description || 'No description provided.'}
                       </div>
                     </div>
 
                     {ticket.attachment && (
                       <div>
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">File Attachment</label>
+                        <label className="block text-sm font-medium text-neutral-400 mb-2">Attachment</label>
                         <a
                           href={ticket.attachment}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-2 text-sm text-accent-indigo hover:text-white bg-accent-indigo/10 hover:bg-accent-indigo/20 px-4 py-2 rounded-lg transition-colors"
+                          className="inline-flex items-center gap-2 rounded-full bg-neutral-950 px-4 py-2 text-sm font-semibold text-white hover:bg-neutral-800 transition"
                         >
-                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                          View Uploaded File
+                          <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                          Open Attachment
                         </a>
                       </div>
                     )}
 
-                    {/* Quick edit — status + agent */}
-                    <div className="border-t border-dark-700/50 pt-5 space-y-4">
-                      <h3 className="text-white text-sm font-semibold flex items-center gap-2">
-                        <svg className="w-4 h-4 text-accent-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                        </svg>
-                        Quick Update
-                      </h3>
+                    <div className="border-t border-neutral-950/5 pt-6 space-y-4">
+                      <h3 className="text-sm font-semibold text-neutral-950">Quick Action</h3>
                       <div className="grid grid-cols-2 gap-4">
                         <div>
-                          <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Status</label>
-                          <select value={form.status} onChange={handleStatusChange} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
-                            {STATUSES.map((s) => <option key={s} value={s} className="bg-dark-900">{s}</option>)}
-                          </select>
+                          <label className="block text-sm/6 font-medium text-neutral-600">Status</label>
+                          <div className="mt-2">
+                            <select value={form.status} onChange={handleStatusChange} className={`${inputClasses} cursor-pointer`}>
+                              {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                            </select>
+                          </div>
                         </div>
                         <div>
-                          <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Agent</label>
-                          <select value={form.agent} onChange={set('agent')} className="glass-input w-full px-3 py-2.5 text-sm cursor-pointer appearance-none">
-                            <option value="" className="bg-dark-900">Unassigned</option>
-                            {agentNames.map((a) => <option key={a} value={a} className="bg-dark-900">{a}</option>)}
-                          </select>
+                          <label className="block text-sm/6 font-medium text-neutral-600">Assign Agent</label>
+                          <div className="mt-2">
+                            <select value={form.agent} onChange={set('agent')} className={`${inputClasses} cursor-pointer`}>
+                              <option value="">Unassigned</option>
+                              {agentNames.map((a) => <option key={a} value={a}>{a}</option>)}
+                            </select>
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Show resolving reason if ticket is resolved */}
                     {(ticket.resolvingReason || form.resolvingReason) && (
-                      <div className="mt-4">
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">Resolving Reason</label>
-                        <div className="glass-panel p-4 text-sm text-emerald-300 leading-relaxed whitespace-pre-wrap border border-emerald-500/20 bg-emerald-500/5">
-                          <div className="flex items-start gap-2">
-                            <svg className="w-4 h-4 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <div className="mt-6">
+                        <label className="block text-sm font-medium text-neutral-400 mb-2">Resolution Outcome</label>
+                        <div className="rounded-2xl bg-emerald-50 ring-1 ring-emerald-200 p-5 text-sm text-emerald-800 leading-relaxed whitespace-pre-wrap">
+                          <div className="flex items-start gap-3">
+                            <svg className="size-5 text-emerald-600 mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                               <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>{form.resolvingReason || ticket.resolvingReason}</span>
@@ -431,23 +431,22 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                       </div>
                     )}
 
-                    {/* CSAT Rating display */}
                     {ticket.csatRating && String(ticket.csatRating).trim() !== '' && (
-                      <div className="mt-4">
-                        <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-2">Customer Satisfaction</label>
-                        <div className="glass-panel p-4 border border-amber-500/20 bg-amber-500/5">
-                          <div className="flex items-center gap-1 mb-1">
+                      <div className="mt-6">
+                        <label className="block text-sm font-medium text-neutral-400 mb-2">Customer Sentiment</label>
+                        <div className="rounded-2xl bg-amber-50 ring-1 ring-amber-200 p-5">
+                          <div className="flex items-center gap-1.5 mb-2">
                             {[1, 2, 3, 4, 5].map((s) => (
-                              <svg key={s} className={`w-5 h-5 ${s <= parseInt(ticket.csatRating) ? 'text-amber-400' : 'text-dark-700'}`} fill="currentColor" viewBox="0 0 24 24">
+                              <svg key={s} className={`size-5 ${s <= parseInt(ticket.csatRating) ? 'text-amber-500' : 'text-neutral-200'}`} fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                               </svg>
                             ))}
-                            <span className="text-amber-300 text-xs font-semibold ml-2">
-                              {['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'][parseInt(ticket.csatRating)] || ''}
+                            <span className="text-sm font-semibold text-amber-700 ml-2">
+                              {['', 'Poor', 'Fair', 'Good', 'Excellent', 'Outstanding'][parseInt(ticket.csatRating)] || ''}
                             </span>
                           </div>
                           {ticket.csatFeedback && (
-                            <p className="text-dark-300 text-xs mt-2 italic">"{ticket.csatFeedback}"</p>
+                            <p className="text-sm text-neutral-600 italic">"{ticket.csatFeedback}"</p>
                           )}
                         </div>
                       </div>
@@ -461,52 +460,54 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
                 {notesLoading ? (
                   <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                      <div key={i} className="glass-panel p-4 space-y-2">
+                      <div key={i} className="rounded-2xl ring-1 ring-neutral-950/5 p-4 space-y-2">
                         <div className="h-3 w-24 rounded skeleton-shimmer" />
                         <div className="h-4 w-full rounded skeleton-shimmer" />
                       </div>
                     ))}
                   </div>
                 ) : notes.length === 0 ? (
-                  <div className="text-center py-10">
-                    <div className="w-14 h-14 rounded-xl bg-dark-800/60 flex items-center justify-center mx-auto mb-3">
-                      <svg className="w-7 h-7 text-dark-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <div className="text-center py-20 flex flex-col items-center">
+                    <div className="flex size-14 items-center justify-center rounded-full bg-neutral-100 mb-4">
+                      <svg className="size-7 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                       </svg>
                     </div>
-                    <p className="text-dark-500 text-sm">No notes yet. Add the first note below.</p>
+                    <p className="text-sm text-neutral-500">No notes yet.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
                     {notes.map((note, i) => (
-                      <div key={i} className="glass-panel p-4">
-                        <div className="flex items-center gap-2 mb-2">
-                          <span className="w-6 h-6 rounded-full bg-accent-indigo/20 flex items-center justify-center text-accent-indigo text-[10px] font-bold uppercase">
-                            {(note.author || 'A').charAt(0)}
+                      <div key={i} className="rounded-2xl ring-1 ring-neutral-950/5 p-5">
+                        <div className="flex items-center gap-3 mb-3">
+                          <span className="flex size-7 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white text-[0.625rem] font-medium text-neutral-950">
+                            {(note.author || 'A').charAt(0).toUpperCase()}
                           </span>
-                          <span className="text-dark-300 text-xs font-semibold">{note.author || 'Admin'}</span>
-                          <span className="text-dark-600 text-[10px]">
-                            {note.timestamp ? new Date(note.timestamp).toLocaleString() : ''}
-                          </span>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-neutral-950">{note.author || 'Admin'}</p>
+                            <p className="text-xs text-neutral-400">
+                              {note.timestamp ? new Date(note.timestamp).toLocaleString() : ''}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-dark-300 text-sm leading-relaxed whitespace-pre-wrap">{note.message}</p>
+                        <p className="text-sm text-neutral-600 leading-relaxed whitespace-pre-wrap">{note.message}</p>
                       </div>
                     ))}
                   </div>
                 )}
                 {/* Add note */}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <input
                     value={newNote}
                     onChange={(e) => setNewNote(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAddNote()}
-                    placeholder="Add a note…"
-                    className="glass-input flex-1 px-3 py-2.5 text-sm"
+                    placeholder="Type an internal note…"
+                    className={`${inputClasses} flex-1`}
                   />
                   <button
                     onClick={handleAddNote}
                     disabled={!newNote.trim()}
-                    className="px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 disabled:opacity-40 transition-all cursor-pointer"
+                    className="rounded-full bg-neutral-950 px-5 py-1.5 text-sm font-semibold text-white shadow-xs hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
                   >
                     Send
                   </button>
@@ -516,41 +517,26 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
           </div>
 
           {/* ─ Footer ─ */}
-          <div className="p-5 border-t border-dark-700/50">
-            <div className="flex items-center gap-2 mb-3">
+          <div className="px-6 py-5 border-t border-neutral-950/5">
+            <div className="flex items-center gap-4 mb-4">
               <button
                 onClick={() => setIsEditing(!isEditing)}
-                className="text-xs text-accent-blue hover:text-accent-blue/80 transition-colors cursor-pointer flex items-center gap-1"
+                className="text-sm font-semibold text-neutral-600 hover:text-neutral-950 transition cursor-pointer"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                {isEditing ? 'Switch to View' : 'Edit All Fields'}
+                {isEditing ? 'View Mode' : 'Edit'}
               </button>
               {permissions.canArchiveTickets && (
                 <>
-                  <span className="text-dark-700">·</span>
-                  <button
-                    onClick={handleArchive}
-                    className="text-xs text-amber-400 hover:text-amber-300 transition-colors cursor-pointer flex items-center gap-1"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                    </svg>
+                  <span className="text-neutral-200">·</span>
+                  <button onClick={handleArchive} className="text-sm font-semibold text-amber-600 hover:text-amber-700 transition cursor-pointer">
                     Archive
                   </button>
                 </>
               )}
               {permissions.canDeleteTickets && (
                 <>
-                  <span className="text-dark-700">·</span>
-                  <button
-                    onClick={handleDelete}
-                    className="text-xs text-red-400 hover:text-red-300 transition-colors cursor-pointer flex items-center gap-1"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
+                  <span className="text-neutral-200">·</span>
+                  <button onClick={handleDelete} className="text-sm font-semibold text-red-600 hover:text-red-700 transition cursor-pointer">
                     Delete
                   </button>
                 </>
@@ -559,19 +545,19 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
             <div className="flex items-center gap-3">
               <button
                 onClick={handleClose}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
+                className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-neutral-950 bg-white ring-1 ring-neutral-300 ring-inset shadow-xs hover:bg-neutral-50 transition cursor-pointer"
               >
-                Cancel
+                Close
               </button>
               <button
                 onClick={handleSave}
                 disabled={!hasChanged || saving}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                className="flex-[1.5] flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white bg-neutral-950 shadow-xs hover:bg-neutral-800 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
               >
                 {saving ? (
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <span className="size-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                 ) : (
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 )}
@@ -593,58 +579,54 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
         onCancel={() => setConfirmAction(null)}
       />
 
-      {/* Resolve Reason Modal */}
       {showResolveModal && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-overlay-in">
-          <div className="w-full max-w-md mx-4 bg-dark-900 border border-dark-700/50 rounded-2xl shadow-2xl overflow-hidden animate-scale-in">
-            {/* Modal Header */}
-            <div className="p-5 border-b border-dark-700/50">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-neutral-950/50 animate-overlay-in">
+          <div className="w-full max-w-md mx-4 rounded-3xl bg-white ring-1 ring-neutral-950/5 shadow-xl overflow-hidden animate-fade-in">
+            <div className="px-6 py-5 border-b border-neutral-950/5">
+              <div className="flex items-center gap-4">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-emerald-100">
+                  <svg className="size-5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-white text-base font-semibold">Resolve Ticket</h3>
-                  <p className="text-dark-400 text-xs mt-0.5">How was this ticket resolved?</p>
+                  <h3 className="font-display text-lg font-semibold text-neutral-950">Resolve Ticket</h3>
+                  <p className="text-sm text-neutral-600 mt-0.5">Finalize resolution details</p>
                 </div>
               </div>
             </div>
 
-            {/* Modal Body */}
-            <div className="p-5">
-              <label className="text-dark-300 text-sm font-medium block mb-2">
-                Resolving Reason <span className="text-red-400">*</span>
+            <div className="px-6 py-5">
+              <label className="block text-sm/6 font-medium text-neutral-950 mb-2">
+                Resolution Note <span className="text-red-600">*</span>
               </label>
               <textarea
                 value={resolvingReason}
                 onChange={(e) => setResolvingReason(e.target.value)}
-                placeholder="Describe how this ticket was resolved…"
+                placeholder="Describe how this issue was resolved…"
                 rows={4}
                 autoFocus
-                className="glass-input w-full px-4 py-3 text-sm resize-none placeholder:text-dark-600"
+                className={`${inputClasses} resize-none`}
               />
-              <p className="text-dark-600 text-xs mt-2">This reason will be recorded and visible in the ticket details.</p>
+              <p className="text-xs text-neutral-400 mt-2 text-center">This note will be permanently logged.</p>
             </div>
 
-            {/* Modal Footer */}
-            <div className="flex items-center gap-3 p-5 border-t border-dark-700/50">
-              <button
-                onClick={handleResolveCancel}
-                className="flex-1 px-4 py-2.5 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 hover:bg-dark-700 border border-dark-600/30 transition-all cursor-pointer"
-              >
-                Cancel
-              </button>
+            <div className="flex items-center gap-3 px-6 py-5 border-t border-neutral-950/5 sm:flex-row-reverse">
               <button
                 onClick={handleResolveConfirm}
                 disabled={!resolvingReason.trim()}
-                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+                className="flex-1 flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white bg-emerald-600 shadow-xs hover:bg-emerald-500 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer"
               >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                 </svg>
-                Confirm Resolution
+                Confirm Resolve
+              </button>
+              <button
+                onClick={handleResolveCancel}
+                className="flex-1 rounded-full px-4 py-2.5 text-sm font-semibold text-neutral-950 bg-white ring-1 ring-neutral-300 ring-inset shadow-xs hover:bg-neutral-50 transition cursor-pointer"
+              >
+                Go Back
               </button>
             </div>
           </div>
@@ -656,9 +638,11 @@ export default function TicketModal({ ticket, onClose, onUpdate, onDelete, onArc
 
 function DetailField({ label, value }) {
   return (
-    <div>
-      <span className="text-dark-500 text-[11px] font-medium uppercase tracking-wider block mb-0.5">{label}</span>
-      <span className="text-dark-300 text-sm truncate block">{value || '—'}</span>
+    <div className="flex flex-col gap-1">
+      <span className="text-xs font-medium text-neutral-400">{label}</span>
+      <span className="text-sm font-semibold text-neutral-950 bg-neutral-50 px-3 py-2 rounded-lg ring-1 ring-neutral-950/5 truncate">
+        {value || '—'}
+      </span>
     </div>
   );
 }

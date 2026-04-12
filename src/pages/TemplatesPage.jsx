@@ -5,8 +5,8 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
 const COLORS = [
-  'bg-blue-500', 'bg-indigo-500', 'bg-violet-500', 'bg-emerald-500',
-  'bg-amber-500', 'bg-rose-500', 'bg-cyan-500', 'bg-pink-500',
+  'bg-blue-600', 'bg-indigo-600', 'bg-violet-600', 'bg-emerald-600',
+  'bg-amber-600', 'bg-rose-600', 'bg-cyan-600', 'bg-pink-600',
 ];
 
 export default function TemplatesPage() {
@@ -37,14 +37,14 @@ export default function TemplatesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">Canned Responses</h1>
-          <p className="text-dark-500 text-sm">Manage your email reply templates</p>
+          <h1 className="text-2xl sm:text-4xl font-semibold text-neutral-950 tracking-tight">Canned Responses</h1>
+          <p className="text-neutral-400 text-xs sm:text-sm font-medium uppercase tracking-widest mt-1">Manage your email reply templates</p>
         </div>
         <button
           onClick={() => { setShowForm(!showForm); setForm({ title: '', content: '' }); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 transition-all cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold text-white rounded-full bg-neutral-950 text-white shadow-xs hover:bg-neutral-800 transition-all cursor-pointer"
         >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           New Template
@@ -53,23 +53,23 @@ export default function TemplatesPage() {
 
       {/* Add Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="glass-panel p-5 animate-fade-in">
-          <h3 className="text-white text-sm font-semibold mb-4">Add New Template</h3>
+        <form onSubmit={handleSubmit} className="bg-white p-5 rounded-2xl border border-neutral-200 shadow-sm animate-fade-in">
+          <h3 className="text-neutral-950 text-sm font-semibold uppercase tracking-widest mb-4">Add New Template</h3>
           
           <div className="space-y-4">
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Title / Subject *</label>
+              <label className="text-neutral-500 text-xs font-bold uppercase tracking-widest block mb-1.5 pl-1">Title / Subject *</label>
               <input
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="e.g., Password Reset Instructions"
                 required
-                className="glass-input w-full px-3 py-2.5 text-sm"
+                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-neutral-950 outline-1 -outline-offset-1 outline-neutral-300 placeholder:text-neutral-400 focus:outline-2 focus:-outline-offset-2 focus:outline-neutral-950 sm:text-sm/6 w-full px-4 py-3 text-sm"
               />
             </div>
             <div>
-              <label className="text-dark-400 text-xs font-medium uppercase tracking-wider block mb-1.5">Rich Text Content *</label>
-              <div className="!text-dark-900 bg-white rounded-xl overflow-hidden border border-dark-600/30">
+              <label className="text-neutral-500 text-xs font-bold uppercase tracking-widest block mb-1.5 pl-1">Rich Text Content *</label>
+              <div className="!text-neutral-950 bg-white rounded-xl overflow-hidden border border-neutral-200 shadow-sm focus-within:shadow-md transition-shadow">
                 <ReactQuill
                   theme="snow"
                   value={form.content}
@@ -88,18 +88,18 @@ export default function TemplatesPage() {
             </div>
           </div>
 
-          <div className="flex gap-3 mt-4">
+          <div className="flex gap-3 mt-6">
             <button
               type="button"
               onClick={() => { setShowForm(false); }}
-              className="px-4 py-2 rounded-xl text-sm font-medium text-dark-300 hover:text-white bg-dark-800 border border-dark-600/30 transition-all cursor-pointer"
+              className="px-6 py-2 rounded-xl text-sm font-bold text-neutral-500 hover:text-neutral-950 bg-white border border-neutral-200 shadow-sm transition-all cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || !form.title || !form.content || form.content === '<p><br></p>'}
-              className="px-6 py-2 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-accent-blue to-accent-indigo hover:opacity-90 disabled:opacity-50 transition-all cursor-pointer"
+              className="px-8 py-2 rounded-xl text-sm font-bold text-white rounded-full bg-neutral-950 text-white shadow-xs hover:bg-neutral-800 transition-all disabled:opacity-50 cursor-pointer"
             >
               {isSubmitting ? 'Saving...' : 'Save Template'}
             </button>
@@ -115,17 +115,20 @@ export default function TemplatesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {templates.map((template, i) => (
-            <div key={template.id} className="glass-card flex flex-col group h-full">
+            <div key={template.id} className="bg-white rounded-2xl border border-neutral-200 flex flex-col group h-full shadow-sm hover:shadow-lg transition-all duration-300">
               {/* Header Box */}
-              <div className={`p-4 rounded-t-2xl border-b border-white/10 ${COLORS[i % COLORS.length]} bg-opacity-10`}>
+              <div className={`p-5 rounded-t-2xl border-b border-neutral-100 bg-gradient-to-br from-gray-50/50 to-transparent`}>
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0 pr-4">
-                    <h3 className="text-white font-semibold text-base truncate">{template.title}</h3>
-                    <p className="text-white/60 text-xs mt-1 font-mono uppercase tracking-wider">{template.id}</p>
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className={`w-2 h-2 rounded-full ${COLORS[i % COLORS.length]}`} />
+                      <h3 className="text-neutral-950 font-bold text-base truncate">{template.title}</h3>
+                    </div>
+                    <p className="text-neutral-400 text-[10px] font-semibold uppercase tracking-widest">{template.id}</p>
                   </div>
                   <button
                      onClick={() => setConfirmDelete(template)}
-                     className="p-2 -mr-2 -mt-2 rounded-full bg-black/20 hover:bg-red-500/80 text-white/70 hover:text-white opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-lg"
+                     className="p-2 -mr-1 -mt-1 rounded-xl bg-neutral-50 hover:bg-red-50 text-neutral-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-all cursor-pointer border border-neutral-200"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -135,7 +138,7 @@ export default function TemplatesPage() {
               </div>
               
               {/* Body Box */}
-              <div className="p-4 flex-1 prose-sm prose-invert text-dark-300 max-h-48 overflow-y-auto"
+              <div className="p-5 flex-1 prose-sm text-neutral-600 max-h-48 overflow-y-auto italic line-clamp-4"
                    dangerouslySetInnerHTML={{ __html: template.content }} />
             </div>
           ))}
@@ -143,8 +146,13 @@ export default function TemplatesPage() {
       )}
 
       {!loading && templates.length === 0 && (
-        <div className="text-center py-16">
-          <p className="text-dark-500 text-sm">No templates yet. Add your first canned response above.</p>
+        <div className="text-center py-20 flex flex-col items-center">
+          <div className="w-20 h-20 rounded-2xl bg-neutral-50 flex items-center justify-center mb-4 border border-neutral-200">
+            <svg className="w-10 h-10 text-neutral-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 11h-6V5a1 1 0 00-1-1H7a1 1 0 00-1 1v6H4a1 1 0 00-1 1v2a1 1 0 001 1h2v6a1 1 0 001 1h4a1 1 0 001-1v-6h6a1 1 0 001-1v-2a1 1 0 00-1-1z" />
+            </svg>
+          </div>
+          <p className="text-neutral-400 text-sm font-medium">No templates yet. Add your first canned response above.</p>
         </div>
       )}
 

@@ -2,7 +2,7 @@ export default function ToastContainer({ toasts, onRemove }) {
   if (!toasts.length) return null;
 
   return (
-    <div className="fixed top-5 right-5 z-[100] flex flex-col gap-2 pointer-events-none">
+    <div className="fixed top-5 right-5 z-[100] flex flex-col gap-3 pointer-events-none">
       {toasts.map((toast) => (
         <Toast key={toast.id} toast={toast} onRemove={onRemove} />
       ))}
@@ -11,49 +11,35 @@ export default function ToastContainer({ toasts, onRemove }) {
 }
 
 function Toast({ toast, onRemove }) {
-  const config = {
-    success: {
-      bg: 'from-emerald-500/20 to-emerald-600/10',
-      border: 'border-emerald-500/30',
-      icon: (
-        <svg className="w-4 h-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-      ),
-    },
-    error: {
-      bg: 'from-red-500/20 to-red-600/10',
-      border: 'border-red-500/30',
-      icon: (
-        <svg className="w-4 h-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
-    info: {
-      bg: 'from-blue-500/20 to-blue-600/10',
-      border: 'border-blue-500/30',
-      icon: (
-        <svg className="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
-    },
+  const icons = {
+    success: (
+      <svg className="size-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    error: (
+      <svg className="size-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
+    info: (
+      <svg className="size-5 text-neutral-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    ),
   };
 
-  const c = config[toast.type] || config.info;
-
   return (
-    <div
-      className={`pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r ${c.bg} border ${c.border} backdrop-blur-xl shadow-xl animate-toast-in min-w-[280px] max-w-[400px]`}
-    >
-      {c.icon}
-      <span className="text-sm text-dark-200 flex-1">{toast.message}</span>
+    <div className="pointer-events-auto flex items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-neutral-950/5 shadow-lg animate-fade-in min-w-[300px] max-w-[420px]">
+      <div className="shrink-0 mt-0.5">
+        {icons[toast.type] || icons.info}
+      </div>
+      <p className="text-sm font-medium text-neutral-950 flex-1">{toast.message}</p>
       <button
         onClick={() => onRemove(toast.id)}
-        className="text-dark-500 hover:text-white transition-colors cursor-pointer p-0.5"
+        className="shrink-0 rounded-md bg-white text-neutral-400 hover:text-neutral-500 transition cursor-pointer"
       >
-        <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg className="size-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>

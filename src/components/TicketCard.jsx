@@ -3,13 +3,13 @@ import { getSLAStatus } from '../utils/sla';
 
 /* ─── Icons ─── */
 const ClockIcon = () => (
-  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6l4 2m6-2a10 10 0 11-20 0 10 10 0 0120 0z" />
   </svg>
 );
 
 const UserIcon = () => (
-  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+  <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
     <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
   </svg>
 );
@@ -35,8 +35,7 @@ function timeAgo(dateStr) {
 }
 
 /**
- * TicketCard — uses normalized ticket fields (id, name, subject, status,
- * priority, agent, createdAt). No more fallback patterns needed.
+ * TicketCard — Studio template card style with ring borders and neutral palette
  */
 export default function TicketCard({ ticket, onClick, index = 0, selected, onSelect, onEmailClick }) {
   const { status, priority, subject, name, agent, createdAt, type } = ticket;
@@ -52,29 +51,30 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
 
   return (
     <div
-      className={`relative overflow-hidden bg-dark-900/40 backdrop-blur-md rounded-2xl border ${
-        selected ? 'border-accent-blue/50 ring-2 ring-accent-blue/30 shadow-[0_0_30px_rgba(59,130,246,0.15)] bg-accent-blue/5' : 'border-dark-700/30 hover:border-dark-600/50 hover:shadow-xl hover:-translate-y-1'
-      } p-4 sm:p-6 text-left w-full cursor-pointer group transition-all duration-300 animate-fade-in`}
+      className={`relative rounded-3xl p-6 ring-1 transition cursor-pointer group ${
+        selected
+          ? 'ring-neutral-950 bg-neutral-50'
+          : 'ring-neutral-950/5 hover:bg-neutral-50'
+      } animate-fade-in`}
       style={{ animationDelay: `${Math.min(index * 50, 400)}ms` }}
       onClick={() => onClick?.(ticket)}
     >
-      <div className={`absolute top-0 left-0 h-full w-[3px] transition-colors ${sc.dot}`} />
       {/* Checkbox */}
       <div
-        className={`absolute top-3 left-3 transition-opacity ${
+        className={`absolute top-4 left-4 transition-opacity ${
           selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
         }`}
       >
         <button
           onClick={handleCheckbox}
-          className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all cursor-pointer ${
+          className={`size-5 rounded border-2 flex items-center justify-center transition cursor-pointer ${
             selected
-              ? 'bg-accent-blue border-accent-blue'
-              : 'border-dark-500 hover:border-dark-400 bg-transparent'
+              ? 'bg-neutral-950 border-neutral-950'
+              : 'border-neutral-300 hover:border-neutral-400 bg-white'
           }`}
         >
           {selected && (
-            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+            <svg className="size-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
           )}
@@ -83,43 +83,38 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
 
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-3">
-        <h3 className="text-white font-semibold text-sm leading-snug line-clamp-2 group-hover:text-accent-blue transition-colors duration-200 pl-0">
+        <h3 className="font-display text-base font-semibold text-neutral-950 line-clamp-2 group-hover:text-neutral-700 transition-colors">
           {subject || 'No subject'}
         </h3>
-        <span
-          className={`shrink-0 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold tracking-wide ring-1 ${sc.bg} ${sc.text} ${sc.ring}`}
-        >
-          <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
+        <span className="shrink-0 inline-flex items-center gap-x-1.5 rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600">
+          <svg viewBox="0 0 6 6" aria-hidden="true" className={`size-1.5 ${sc.dot.replace('bg-', 'fill-')}`}>
+            <circle r={3} cx={3} cy={3} />
+          </svg>
           {sc.label}
         </span>
-        {type && (
-          <span className="shrink-0 px-2 py-0.5 rounded-md bg-dark-800 text-dark-300 text-[10px] font-bold border border-dark-700/50 uppercase tracking-tight">
-            {type}
-          </span>
-        )}
       </div>
 
       {/* Meta */}
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-dark-400 text-[11px] sm:text-xs mb-3 ml-1">
-        <span className="inline-flex items-center gap-1.5 font-medium text-dark-200">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-neutral-600 mb-3">
+        <span className="inline-flex items-center gap-1.5 font-semibold text-neutral-950">
           <UserIcon />
           {name || 'Unknown'}
         </span>
         {ticket.phone && (
-          <span className="inline-flex items-center gap-1">
-            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <span className="inline-flex items-center gap-1 text-neutral-500">
+            <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
             </svg>
             {ticket.phone}
           </span>
         )}
         {ticket.course && (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-accent-blue/5 text-accent-blue/80 border border-accent-blue/10 rounded text-[10px] font-bold">
-            {ticket.course} {ticket.batchTiming ? `— ${ticket.batchTiming}` : ''}
+          <span className="rounded-full bg-neutral-100 px-3 py-0.5 text-xs font-medium text-neutral-600">
+            {ticket.course}{ticket.batchTiming ? ` — ${ticket.batchTiming}` : ''}
           </span>
         )}
         {createdAt && (
-          <span className="inline-flex items-center gap-1">
+          <span className="inline-flex items-center gap-1 text-neutral-400">
             <ClockIcon />
             {timeAgo(createdAt)}
           </span>
@@ -128,25 +123,33 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
 
       {/* Description Snippet */}
       {ticket.description && (
-        <p className="text-dark-500 text-[11px] leading-relaxed line-clamp-2 mb-4 ml-1 italic group-hover:text-dark-400 transition-colors">
-          "{ticket.description.replace(/<[^>]*>/g, '').slice(0, 100)}..."
+        <p className="text-sm text-neutral-500 line-clamp-2 mb-4">
+          {ticket.description.replace(/<[^>]*>/g, '').slice(0, 120)}…
         </p>
       )}
 
       {/* Footer */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pt-3 border-t border-neutral-950/5">
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold ${pc.bg} ${pc.text}`}>
+          <span className="inline-flex items-center gap-x-1.5 rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600">
+            <svg viewBox="0 0 6 6" aria-hidden="true" className={`size-1.5 ${pc.dot.replace('bg-', 'fill-')}`}>
+              <circle r={3} cx={3} cy={3} />
+            </svg>
             {pc.label}
           </span>
           {/* SLA indicator */}
           {sla.status !== 'resolved' && sla.status !== 'unknown' && (
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-              sla.status === 'breach' ? 'bg-red-500/20 text-red-400 animate-pulse-soft' :
-              sla.status === 'warning' ? 'bg-amber-500/20 text-amber-400' :
-              'bg-emerald-500/20 text-emerald-400'
+            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              sla.status === 'breach' ? 'bg-red-100 text-red-700 animate-pulse-soft' :
+              sla.status === 'warning' ? 'bg-amber-100 text-amber-700' :
+              'bg-emerald-100 text-emerald-700'
             }`}>
-              {sla.status === 'breach' ? '🔴 OVERDUE' : `⏱ ${sla.label}`}
+              {sla.status === 'breach' ? 'Overdue' : sla.label}
+            </span>
+          )}
+          {type && (
+            <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs font-medium text-neutral-500">
+              {type}
             </span>
           )}
         </div>
@@ -155,18 +158,18 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
             <button
               title="Email User"
               onClick={(e) => { e.stopPropagation(); onEmailClick?.(ticket); }}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-accent-blue/10 text-accent-blue hover:bg-accent-blue/20 hover:text-accent-blue transition-colors cursor-pointer text-[10px] font-bold uppercase tracking-wider border border-accent-blue/20"
+              className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-2.5 py-1 text-xs font-medium text-neutral-600 hover:bg-neutral-200 transition cursor-pointer"
             >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+              <svg className="size-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
               Reply
             </button>
           )}
           {agent && (
-            <span className="text-dark-500 text-[11px] flex items-center gap-1">
-              <span className="w-5 h-5 rounded-full bg-accent-indigo/20 flex items-center justify-center text-accent-indigo text-[10px] font-bold uppercase">
-                {agent.charAt(0)}
+            <span className="text-sm text-neutral-600 flex items-center gap-1.5">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-lg border border-neutral-200 bg-white text-[0.625rem] font-medium text-neutral-950">
+                {agent.charAt(0).toUpperCase()}
               </span>
               {agent}
             </span>
@@ -180,17 +183,17 @@ export default function TicketCard({ ticket, onClick, index = 0, selected, onSel
 /* ─── Skeleton ─── */
 export function TicketCardSkeleton() {
   return (
-    <div className="relative overflow-hidden bg-dark-900/20 backdrop-blur-md rounded-2xl border border-dark-700/10 p-4 sm:p-6">
+    <div className="rounded-3xl ring-1 ring-neutral-950/5 p-6">
       <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="h-4 w-3/5 rounded skeleton-shimmer" />
+        <div className="h-5 w-3/5 rounded skeleton-shimmer" />
         <div className="h-6 w-20 rounded-full skeleton-shimmer" />
       </div>
       <div className="flex gap-3 mb-4">
-        <div className="h-3 w-24 rounded skeleton-shimmer" />
-        <div className="h-3 w-16 rounded skeleton-shimmer" />
+        <div className="h-4 w-24 rounded skeleton-shimmer" />
+        <div className="h-4 w-16 rounded skeleton-shimmer" />
       </div>
-      <div className="flex items-center justify-between">
-        <div className="h-5 w-14 rounded skeleton-shimmer" />
+      <div className="flex items-center justify-between pt-3 border-t border-neutral-950/5">
+        <div className="h-5 w-14 rounded-full skeleton-shimmer" />
         <div className="h-5 w-20 rounded skeleton-shimmer" />
       </div>
     </div>

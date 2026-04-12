@@ -8,11 +8,11 @@ export default function BulkActionBar({ count, onMarkResolved, onAssign, onDelet
 
   return (
     <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 animate-slide-up">
-      <div className="flex items-center gap-3 px-5 py-3 bg-dark-900/95 backdrop-blur-xl border border-dark-600/30 rounded-2xl shadow-2xl shadow-black/40">
+      <div className="flex items-center gap-3 px-5 py-3 bg-neutral-900/95 backdrop-blur-xl border border-neutral-600/30 rounded-2xl shadow-2xl shadow-black/40">
         <span className="text-white text-sm font-semibold mr-1">
           {count} selected
         </span>
-        <div className="w-px h-5 bg-dark-600/50" />
+        <div className="w-px h-5 bg-neutral-200" />
         <button
           onClick={onMarkResolved}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 transition-all cursor-pointer"
@@ -23,19 +23,19 @@ export default function BulkActionBar({ count, onMarkResolved, onAssign, onDelet
           Resolve
         </button>
         <div className="relative group">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-accent-blue bg-accent-blue/10 hover:bg-accent-blue/20 transition-all cursor-pointer">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-950 bg-neutral-950/10 hover:bg-neutral-950/20 transition-all cursor-pointer">
             <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
             </svg>
             Assign
           </button>
           <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block">
-            <div className="bg-dark-900 border border-dark-700/50 rounded-xl shadow-xl p-1 min-w-[140px]">
+            <div className="bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-xl p-1 min-w-[140px]">
               {agentNames.map((a) => (
                 <button
                   key={a}
                   onClick={() => onAssign(a)}
-                  className="w-full text-left px-3 py-2 text-xs text-dark-300 hover:text-white hover:bg-dark-700/60 rounded-lg transition-colors cursor-pointer"
+                  className="w-full text-left px-3 py-2 text-xs text-neutral-300 hover:text-white hover:bg-neutral-700/60 rounded-lg transition-colors cursor-pointer"
                 >
                   {a}
                 </button>
@@ -54,10 +54,10 @@ export default function BulkActionBar({ count, onMarkResolved, onAssign, onDelet
             Delete
           </button>
         )}
-        <div className="w-px h-5 bg-dark-600/50" />
+        <div className="w-px h-5 bg-neutral-200" />
         <button
           onClick={onClear}
-          className="px-3 py-1.5 rounded-lg text-xs font-medium text-dark-400 hover:text-white hover:bg-dark-700/40 transition-all cursor-pointer"
+          className="px-3 py-1.5 rounded-lg text-xs font-medium text-neutral-400 hover:text-white hover:bg-neutral-700/40 transition-all cursor-pointer"
         >
           Clear
         </button>
