@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Analytics } from "@vercel/analytics/react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './hooks/useAuth';
 import { useTickets } from './hooks/useTickets';
@@ -238,6 +239,7 @@ function PublicKnowledgeBasePage() {
 export default function App() {
   return (
     <BrowserRouter>
+      <Analytics />
       <AuthProvider>
         <Routes>
           {/* Public — anyone can access without login */}
