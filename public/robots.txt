@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /submit
+Allow: /track
+Allow: /faq
+Allow: /rate
+Disallow: /admin
+Disallow: /admin/*
+
+Sitemap: https://support.skillected.com/sitemap.xml

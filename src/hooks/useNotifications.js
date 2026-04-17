@@ -135,7 +135,7 @@ export function useNotifications(tickets) {
       if (Notification.permission === 'granted') {
         for (const n of newNotifs) {
           try {
-            new Notification('Skillected Support', {
+            new Notification('SkillEctEd Support', {
               body: n.message,
               icon: '/logo.png',
               tag: n.id,

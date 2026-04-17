@@ -59,12 +59,12 @@ export default function LoginPage() {
       <div className="sm:mx-auto sm:w-full sm:max-w-md px-6">
         <FadeIn>
           {/* Logo */}
-          <Logo className="mx-auto h-12 w-auto mb-8" />
+          <Logo className="mx-auto h-16 w-auto mb-8" />
           <h1 className="text-center font-display text-2xl/9 font-bold tracking-tight text-neutral-950">
             Sign in to your account
           </h1>
           <p className="mt-2 text-center text-base text-neutral-600">
-            Staff & Admin Login Portal
+            SkillEctEd Support & Admin Portal
           </p>
         </FadeIn>
       </div>
@@ -73,6 +73,7 @@ export default function LoginPage() {
         <FadeIn>
           <div className="rounded-3xl bg-white p-8 ring-1 ring-neutral-950/5 sm:p-12">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* ... (rest of the form remains unchanged) ... */}
               <div>
                 <label htmlFor="username" className="block text-sm/6 font-medium text-neutral-950">
                   Username
@@ -125,7 +126,7 @@ export default function LoginPage() {
             </form>
 
             <p className="mt-6 text-center text-xs text-neutral-400">
-              Protected by Skillected Staff Auth
+              Protected by SkillEctEd Support Staff Auth
             </p>
           </div>
 

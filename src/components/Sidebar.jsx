@@ -91,12 +91,12 @@ export default function Sidebar({ collapsed, onToggle }) {
         )}
       >
         {/* Logo */}
-        <div className="flex h-16 shrink-0 items-center gap-3 px-6 border-b border-neutral-950/5">
-          <Logo className="w-8 h-8 shrink-0" />
+        <div className="flex h-16 shrink-0 items-center gap-2 px-4 border-b border-neutral-950/5">
+          <Logo className="h-8 w-auto shrink-0" />
           {!collapsed && (
             <div className="overflow-hidden">
               <span className="font-display text-sm font-semibold text-neutral-950 whitespace-nowrap">
-                Skillected
+                SkillEctEd Support
               </span>
             </div>
           )}

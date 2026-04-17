@@ -1,8 +1,8 @@
 {
-  "name": "Skillected Support",
-  "short_name": "Support",
-  "description": "Complete Ticket Management System — Create, track, assign, analyze, and resolve support tickets.",
-  "start_url": "/admin",
+  "name": "SkillEctEd Support | Official Helpdesk",
+  "short_name": "SkillEctEd Support",
+  "description": "Premium Helpdesk — Submit, track, and resolve your support tickets with SkillEctEd.",
+  "start_url": "/submit",
   "display": "standalone",
   "background_color": "#020617",
   "theme_color": "#020617",
